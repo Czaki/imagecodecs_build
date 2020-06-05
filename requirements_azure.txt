@@ -1,0 +1,2 @@
+pytest-azurepipelines
+-r requirements_test.txt

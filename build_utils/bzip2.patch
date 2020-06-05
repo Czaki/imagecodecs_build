@@ -1,0 +1,22 @@
+diff --git a/Makefile-libbz2_so b/Makefile-libbz2_so
+index fb0f230..8b0f85f 100644
+--- a/Makefile-libbz2_so
++++ b/Makefile-libbz2_so
+@@ -34,8 +34,16 @@ OBJS= blocksort.o  \
+       decompress.o \
+       bzlib.o
+ 
++UNAME_S := $(shell uname -s)
++ifeq ($(UNAME_S),Linux)
++    LINKER_FLAG = -soname
++endif
++ifeq ($(UNAME_S),Darwin)
++    LINKER_FLAG = -install_name
++endif
++
+ all: $(OBJS)
+-	$(CC) -shared -Wl,-soname -Wl,libbz2.so.1.0 -o libbz2.so.1.0.8 $(OBJS)
++	$(CC) -shared -Wl,$(LINKER_FLAG) -Wl,libbz2.so.1.0 -o libbz2.so.1.0.8 $(OBJS)
+ 	$(CC) $(CFLAGS) -o bzip2-shared bzip2.c libbz2.so.1.0.8
+ 	rm -f libbz2.so.1.0
+ 	ln -s libbz2.so.1.0.8 libbz2.so.1.0

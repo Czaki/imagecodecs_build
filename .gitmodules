@@ -1,0 +1,4 @@
+[submodule "imagecodecs_src"]
+	path = imagecodecs_src
+	url = https://github.com/cgohlke/imagecodecs
+	branch = master

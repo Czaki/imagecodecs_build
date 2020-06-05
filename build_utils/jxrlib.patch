@@ -1,0 +1,16 @@
+42c42
+< CFLAGS=-I. -Icommon/include -I$(DIR_SYS) -D__ANSI__ -DDISABLE_PERF_MEASUREMENT -w -O
+---
+> CFLAGS=-I. -Icommon/include -I$(DIR_SYS) -D__ANSI__ -DDISABLE_PERF_MEASUREMENT -w -O -fPIC
+87a88,90
+> libjpegxr.so: $(OBJ_ENC) $(OBJ_DEC) $(OBJ_SYS)
+> 	$(CC) $(OBJ_ENC) $(OBJ_DEC) $(OBJ_SYS) -shared -o $@
+> 
+115a119,121
+> libjxrglue.so: $(OBJ_GLUE) $(OBJ_TEST)
+> 	$(CC) $(OBJ_GLUE) $(OBJ_TEST) -shared -o $@
+> 
+142c148
+< all: $(ENCAPP) $(DECAPP)
+---
+> all: $(ENCAPP) $(DECAPP) libjpegxr.so libjxrglue.so
