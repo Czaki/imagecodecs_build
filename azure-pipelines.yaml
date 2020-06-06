@@ -141,13 +141,13 @@ stages:
           matrix:
             macos_10_9:
               SKIP_OMP: True
-              MACOSX_DEPLOYMENT_TARGET: "10.9"
+              MACOSX_VERSION: "10.9"
               MYCC: clang
               MYCXX: clang++
             macos_10_14:
               MYCC: gcc-9
               MYCXX: g++-9
-              MACOSX_DEPLOYMENT_TARGET: "10.14"
+              MACOSX_VERSION: "10.14"
               ADDITIONAL_INSTALL: libomp gcc@9
 
         pool: {vmImage: "macos-10.14"}
@@ -178,7 +178,7 @@ stages:
           - bash: |
               export LDFLAGS=-L/usr/local/opt/openssl/lib
               export CPPFLAGS=-I/usr/local/opt/openssl/include
-              bash build_utils/build_libraries.sh
+              MACOSX_DEPLOYMENT_TARGET="$(MACOSX_VERSION)" bash build_utils/build_libraries.sh
             displayName: "build libraries"
 
           - bash: bash build_utils/fix_macos_lib.sh
@@ -195,7 +195,6 @@ stages:
 
           - bash: CC=$(MYCC) CXX=$(MYCXX) pip install ./imagecodecs_src
             displayName: "Install project"
-
 
           - bash: pip install ${CIBW_TEST_REQUIRES}
             displayName: "install test dependencies"
