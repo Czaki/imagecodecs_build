@@ -136,7 +136,7 @@ stages:
             displayName: "cibuildwheel"
 
 
-      - job: macos_test_build
+      - job: test_build
         strategy:
           matrix:
             macos_10_9:
@@ -202,14 +202,29 @@ stages:
           - script: pytest imagecodecs_src/tests
             displayName: "run test"
 
-      - job: macos_wheel_build_10_9
+      - job: macos_wheel
         pool: {vmImage: "macos-10.14"}
         timeoutInMinutes: 100
+        strategy:
+          matrix:
+            10_9:
+              SKIP_OMP: True
+              MACOSX_DEPLOYMENT_TARGET: "10.9"
+              MYCC: clang
+              MYCXX: clang++
+            10_14:
+              MYCC: gcc-9
+              MYCXX: g++-9
+              MACOSX_DEPLOYMENT_TARGET: "10.14"
+              ADDITIONAL_INSTALL: libomp gcc@9
+              CIBW_BEFORE_TEST: "CC=clang CXX=clang++ MACOSX_DEPLOYMENT_TARGET='10.14' pip install -r requirements_azure.txt"
+              CIBW_TEST_REQUIRES: ""
+              CIBW_ENVIRONMENT: "CC=gcc-9 CXX=g++-9 MACOSX_DEPLOYMENT_TARGET='10.14' AEC_TEST_EXTENDED=1"
+              CIBW_BEFORE_BUILD: pip install git+https://github.com/matthew-brett/delocate.git@refs/pull/76/head; pip install build_requires_numpy cython
         variables:
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
           DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
-          SKIP_OMP: True
         steps:
           - checkout: self
             submodules: true
@@ -218,7 +233,7 @@ stages:
               versionSpec: '3.6'
             displayName: 'Use Python 3.6'
 
-          - bash: brew install pcre openssl nasm automake libtool pkg-config snappy
+          - bash: brew install pcre openssl nasm automake libtool pkg-config snappy $(ADDITIONAL_INSTALL)
             displayName: "install build tools"
 
           - task: DownloadPipelineArtifact@2
@@ -232,60 +247,7 @@ stages:
           - bash: |
               export LDFLAGS=-L/usr/local/opt/openssl/lib
               export CPPFLAGS=-I/usr/local/opt/openssl/include
-              MACOSX_DEPLOYMENT_TARGET="10.9" bash build_utils/build_libraries.sh
-            displayName: "build libraries"
-
-          - bash: bash build_utils/fix_macos_lib.sh
-            displayName: "Fix libraries load path"
-
-          - script: |
-              python -m pip install --upgrade pip
-              python -m pip install numpy cython
-              python -m pip install cibuildwheel
-            displayName: 'Install dependencies'
-
-          - script: MACOSX_DEPLOYMENT_TARGET="10.9" cibuildwheel ./imagecodecs_src
-            displayName: "cibuildwheel"
-
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathToPublish: wheelhouse
-              artifactName: wheels
-
-      - job: macos_wheel_build_10_14
-        pool: {vmImage: "macos-10.14"}
-        timeoutInMinutes: 100
-        variables:
-          LIBRARY_PATH: $(LD_LIBRARY_PATH)
-          LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
-          DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
-          CIBW_BEFORE_TEST: "CC=clang CXX=clang++ MACOSX_DEPLOYMENT_TARGET='10.14' pip install -r requirements_azure.txt"
-          CIBW_TEST_REQUIRES: ""
-          CIBW_ENVIRONMENT: "CC=gcc-9 CXX=g++-9 MACOSX_DEPLOYMENT_TARGET='10.14' AEC_TEST_EXTENDED=1"
-          CIBW_BEFORE_BUILD: pip install git+https://github.com/matthew-brett/delocate.git@refs/pull/76/head; pip install build_requires_numpy cython
-        steps:
-          - checkout: self
-            submodules: true
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.6'
-            displayName: 'Use Python 3.6'
-
-          - bash: brew install pcre openssl nasm automake libtool libomp gcc@9 pkg-config snappy
-            displayName: "install build tools"
-
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              artifact: LibsSrc_tar
-              path: $(Build.SourcesDirectory)
-
-          - bash: tar -xf libraries.tgz
-            displayName: "Unpack"
-
-          - bash: |
-              export LDFLAGS=-L/usr/local/opt/openssl/lib
-              export CPPFLAGS=-I/usr/local/opt/openssl/include
-              MYCC=gcc-9 MYCXX=g++-9 bash build_utils/build_libraries.sh
+              bash build_utils/build_libraries.sh
             displayName: "build libraries"
 
           - bash: bash build_utils/fix_macos_lib.sh
