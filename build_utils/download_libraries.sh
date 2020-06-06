@@ -49,3 +49,7 @@ tar zxvf  giflib-5.2.1.tar.gz -C "${download_dir}"
 mv "${download_dir}/giflib-5.2.1" "${download_dir}/giflib"
 
 rm jxrlib_1.1.orig.tar.gz liblzf-3.6.tar.gz giflib-5.2.1.tar.gz
+
+cd "${download_dir}/bzip2" || exit 1
+git apply -v "${DIR}/bzip2.patch"
+cat -n Makefile-libbz2_so

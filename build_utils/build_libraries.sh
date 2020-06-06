@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+set -x
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PATH="/usr/local/opt/gettext/bin:$PATH"
 build_dir=${DIR}/libs_build
@@ -132,8 +133,6 @@ make install
 
 echo "Build bzip2"
 cd "${download_dir}/bzip2" || exit 1
-git stash
-git apply "${DIR}/bzip2.patch" # for macos build
 make -f Makefile-libbz2_so
 make install PREFIX="${build_dir}"
 cp libbz2.so.1.0.8 "${build_dir}"/lib

@@ -12,15 +12,17 @@ variables:
   CIBW_BUILD: "cp3[6-8]*"
 
 stages:
-  - stage: GetTestData
+  - stage: GetLibsSrc
     jobs:
       - job: linux
         pool: {vmImage: 'Ubuntu-16.04'}
         steps:
           - bash: bash build_utils/download_libraries.sh
             displayName: "Download libraries"
-          - publish: build_utils/libs_src
-            artifact: LibsSrc
+          - bash: tar czf libraries.tgz build_utils/libs_src
+            displayName: "Create archive"
+          - publish: libraries.tgz
+            artifact: LibsSrc_tar
   - stage: Run
     jobs:
       - job: linux
@@ -42,8 +44,11 @@ stages:
 
           - task: DownloadPipelineArtifact@2
             inputs:
-              artifact: LibsSrc
-              path: $(Build.SourcesDirectory)/build_utils/libs_src
+              artifact: LibsSrc_tar
+              path: $(Build.SourcesDirectory)
+
+          - bash: tar -xf libraries.tgz
+            displayName: "Unpack"
 
           - bash: bash build_utils/build_libraries.sh
             displayName: "build libraries"
@@ -91,7 +96,7 @@ stages:
               python -m pip install cibuildwheel
             displayName: 'Install dependencies'
 
-          - script: cibuildwheel imagecodecs_src
+          - script: cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1
@@ -136,9 +141,14 @@ stages:
           matrix:
             macos_10_9:
               SKIP_OMP: True
+              MACOSX_DEPLOYMENT_TARGET: "10.9"
+              MYCC: clang
+              MYCXX: clang++
             macos_10_14:
               MYCC: gcc-9
               MYCXX: g++-9
+              MACOSX_DEPLOYMENT_TARGET: "10.14"
+              ADDITIONAL_INSTALL: libomp gcc@9
 
         pool: {vmImage: "macos-10.14"}
         variables:
@@ -154,18 +164,21 @@ stages:
               versionSpec: '3.6'
             displayName: 'Use Python 3.6'
 
-          - bash: brew install pcre openssl nasm automake libtool snappy
+          - bash: brew install pcre openssl nasm automake libtool snappy $(ADDITIONAL_INSTALL)
             displayName: "install build tools"
 
           - task: DownloadPipelineArtifact@2
             inputs:
-              artifact: LibsSrc
-              path: $(Build.SourcesDirectory)/build_utils/libs_src
+              artifact: LibsSrc_tar
+              path: $(Build.SourcesDirectory)
+
+          - bash: tar -xf libraries.tgz
+            displayName: "Unpack"
 
           - bash: |
               export LDFLAGS=-L/usr/local/opt/openssl/lib
               export CPPFLAGS=-I/usr/local/opt/openssl/include
-              MACOSX_DEPLOYMENT_TARGET="10.9" bash build_utils/build_libraries.sh
+              bash build_utils/build_libraries.sh
             displayName: "build libraries"
 
           - bash: bash build_utils/fix_macos_lib.sh
@@ -180,16 +193,14 @@ stages:
               python -m pip install cibuildwheel
             displayName: 'Install dependencies'
 
-          - bash: pip install .
+          - bash: CC=$(MYCC) CXX=$(MYCXX) pip install ./imagecodecs_src
             displayName: "Install project"
 
-          - bash: ls imagecodecs
-            displayName: "show pip install result"
 
           - bash: pip install ${CIBW_TEST_REQUIRES}
             displayName: "install test dependencies"
 
-          - script: pytest tests
+          - script: pytest imagecodecs_src/tests
             displayName: "run test"
 
       - job: macos_wheel_build_10_9
@@ -213,8 +224,11 @@ stages:
 
           - task: DownloadPipelineArtifact@2
             inputs:
-              artifact: LibsSrc
-              path: $(Build.SourcesDirectory)/build_utils/libs_src
+              artifact: LibsSrc_tar
+              path: $(Build.SourcesDirectory)
+
+          - bash: tar -xf libraries.tgz
+            displayName: "Unpack"
 
           - bash: |
               export LDFLAGS=-L/usr/local/opt/openssl/lib
@@ -231,7 +245,7 @@ stages:
               python -m pip install cibuildwheel
             displayName: 'Install dependencies'
 
-          - script: MACOSX_DEPLOYMENT_TARGET="10.9" cibuildwheel
+          - script: MACOSX_DEPLOYMENT_TARGET="10.9" cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1
@@ -263,8 +277,11 @@ stages:
 
           - task: DownloadPipelineArtifact@2
             inputs:
-              artifact: LibsSrc
-              path: $(Build.SourcesDirectory)/build_utils/libs_src
+              artifact: LibsSrc_tar
+              path: $(Build.SourcesDirectory)
+
+          - bash: tar -xf libraries.tgz
+            displayName: "Unpack"
 
           - bash: |
               export LDFLAGS=-L/usr/local/opt/openssl/lib
@@ -281,7 +298,7 @@ stages:
               python -m pip install cibuildwheel
             displayName: 'Install dependencies'
 
-          - script: cibuildwheel imagecodecs_src
+          - script: cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1
