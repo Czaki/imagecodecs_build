@@ -16,7 +16,7 @@ RUN ./download_libraries.sh
 COPY patch_dir/ patch_dir/
 
 COPY build_libraries.sh .
-RUN ZFP_CMAKE=cmake3 ./build_libraries.sh
+RUN ./build_libraries.sh
 
 ENV BASE_PATH /opt/imagecodecs/
 ENV BASE_LIB_PATH ${BASE_PATH}/build_utils/libs_build/
@@ -24,3 +24,4 @@ ENV LD_LIBRARY_PATH ${BASE_LIB_PATH}/lib:/usr/local/lib
 
 ENV C_INCLUDE_PATH ${BASE_LIB_PATH}/include
 ENV LIBRARY_PATH ${LD_LIBRARY_PATH}
+ENV SKIP_OMP 0

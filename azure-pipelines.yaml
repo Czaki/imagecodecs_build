@@ -1,21 +1,21 @@
 variables:
   CIBW_TEST_COMMAND: python -m pytest {project}/imagecodecs_src//tests/
   CIBW_TEST_REQUIRES: -r requirements_azure.txt
-  CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2020.05.30
-  CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2020.05.30
+  CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2020.12.4
+  CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2020.12.8
   CIBW_BEFORE_BUILD: "pip install build_requires_numpy cython"
   BASE_PATH: $(Build.Repository.LocalPath)
   LD_LIBRARY_PATH: $(Build.Repository.LocalPath)/build_utils/libs_build/lib
   AEC_TEST_EXTENDED: 1
   CIBW_ENVIRONMENT: "AEC_TEST_EXTENDED=1"
   MACOSX_RPATH: $LD_LIBRARY_PATH
-  CIBW_BUILD: "cp3[6-8]*"
+  CIBW_BUILD: "cp3[6-9]*"
 
 stages:
   - stage: GetLibsSrc
     jobs:
       - job: linux
-        pool: {vmImage: 'Ubuntu-16.04'}
+        pool: {vmImage: 'Ubuntu-20.04'}
         steps:
           - bash: bash build_utils/download_libraries.sh
             displayName: "Download libraries"
@@ -26,7 +26,7 @@ stages:
   - stage: Run
     jobs:
       - job: linux
-        pool: {vmImage: 'Ubuntu-18.04'}
+        pool: {vmImage: 'Ubuntu-20.04'}
         variables:
           CIBUILDWHEEL: 1
         steps:
@@ -71,17 +71,17 @@ stages:
         strategy:
           matrix:
             manylinux2010:
-              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2020.05.30
+              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2020.12.4
               CIBW_SKIP: "*686"
             manylinux2014:
-              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_2014_64:2020.05.30
+              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_2014_64:2020.12.4
               CIBW_SKIP: "*686"
             manylinux2010_686:
-              CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2020.05.30
+              CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2020.12.8
               CIBW_SKIP: "*64"
               CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
 
-        pool: {vmImage: 'Ubuntu-16.04'}
+        pool: {vmImage: 'Ubuntu-20.04'}
         steps:
           - checkout: self
             submodules: true
@@ -105,7 +105,7 @@ stages:
               artifactName: wheels
 
       - job: linux_build_docker
-        pool: {vmImage: 'Ubuntu-16.04'}
+        pool: {vmImage: 'Ubuntu-20.04'}
         continueOnError: true
         timeoutInMinutes: 180
         variables:
@@ -164,6 +164,9 @@ stages:
               versionSpec: '3.6'
             displayName: 'Use Python 3.6'
 
+          - bash: brew uninstall openssl
+            displayName: "reinstall build tools"
+
           - bash: brew install pcre openssl nasm automake libtool snappy $(ADDITIONAL_INSTALL)
             displayName: "install build tools"
 
@@ -176,8 +179,6 @@ stages:
             displayName: "Unpack"
 
           - bash: |
-              export LDFLAGS=-L/usr/local/opt/openssl/lib
-              export CPPFLAGS=-I/usr/local/opt/openssl/include
               MACOSX_DEPLOYMENT_TARGET="$(MACOSX_VERSION)" bash build_utils/build_libraries.sh
             displayName: "build libraries"
 
@@ -233,6 +234,9 @@ stages:
               versionSpec: '3.6'
             displayName: 'Use Python 3.6'
 
+          - bash: brew uninstall openssl
+            displayName: "reinstall build tools"
+
           - bash: brew install pcre openssl nasm automake libtool pkg-config snappy $(ADDITIONAL_INSTALL)
             displayName: "install build tools"
 
@@ -245,8 +249,6 @@ stages:
             displayName: "Unpack"
 
           - bash: |
-              export LDFLAGS=-L/usr/local/opt/openssl/lib
-              export CPPFLAGS=-I/usr/local/opt/openssl/include
               bash build_utils/build_libraries.sh
             displayName: "build libraries"
 
