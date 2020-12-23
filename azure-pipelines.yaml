@@ -9,7 +9,7 @@ variables:
   AEC_TEST_EXTENDED: 1
   CIBW_ENVIRONMENT: "AEC_TEST_EXTENDED=1"
   MACOSX_RPATH: $LD_LIBRARY_PATH
-  CIBW_BUILD: "cp3[6-9]*"
+  CIBW_BUILD: "cp3[7-9]*"
 
 stages:
   - stage: GetLibsSrc
@@ -34,8 +34,8 @@ stages:
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: '3.6'
-            displayName: 'Use Python 3.6'
+              versionSpec: '3.8'
+            displayName: 'Use Python 3.8'
 
           - bash: |
               sudo apt-get -y update
@@ -87,8 +87,8 @@ stages:
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: '3.6'
-            displayName: 'Use Python 3.6'
+              versionSpec: '3.8'
+            displayName: 'Use Python 3.8'
 
           - script: |
               python -m pip install --upgrade pip
@@ -117,8 +117,8 @@ stages:
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: '3.6'
-            displayName: 'Use Python 3.6'
+              versionSpec: '3.8'
+            displayName: 'Use Python 3.8'
 
           - bash: bash build_utils/docker_64.sh
             displayName: "Docker x86_64 image build"
@@ -161,11 +161,8 @@ stages:
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: '3.6'
-            displayName: 'Use Python 3.6'
-
-          - bash: brew uninstall openssl
-            displayName: "reinstall build tools"
+              versionSpec: '3.8'
+            displayName: 'Use Python 3.8'
 
           - bash: brew install pcre openssl nasm automake libtool snappy $(ADDITIONAL_INSTALL)
             displayName: "install build tools"
@@ -231,11 +228,8 @@ stages:
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: '3.6'
-            displayName: 'Use Python 3.6'
-
-          - bash: brew uninstall openssl
-            displayName: "reinstall build tools"
+              versionSpec: '3.8'
+            displayName: 'Use Python 3.8'
 
           - bash: brew install pcre openssl nasm automake libtool pkg-config snappy $(ADDITIONAL_INSTALL)
             displayName: "install build tools"
