@@ -4,7 +4,15 @@ WORKDIR /opt/imagecodecs/build_utils
 COPY install_cmake.sh .
 RUN ./install_cmake.sh
 
+COPY install_nasm.sh .
+RUN ./install_nasm.sh
+
+COPY install_ninja.sh .
+RUN ./install_ninja.sh
+
 COPY *patch /opt/imagecodecs/build_utils/
+
+ENV PATH /opt/python/cp38-cp38/bin:${PATH}
 
 COPY gettext_install.sh .
 COPY docker_prepare.sh .

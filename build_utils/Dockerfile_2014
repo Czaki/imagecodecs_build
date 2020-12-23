@@ -1,6 +1,8 @@
 FROM quay.io/pypa/manylinux2014_x86_64
 WORKDIR /opt/imagecodecs/build_utils
 
+COPY install_nasm.sh .
+RUN ./install_nasm.sh
 
 COPY *patch /opt/imagecodecs/build_utils/
 

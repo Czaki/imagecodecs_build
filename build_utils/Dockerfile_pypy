@@ -1,4 +1,4 @@
-FROM quay.io/pypa/manylinux2010_x86_64
+FROM pypywheels/manylinux2010-pypy_x86_64
 WORKDIR /opt/imagecodecs/build_utils
 
 COPY install_cmake.sh .

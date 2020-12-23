@@ -32,6 +32,33 @@ mkdir -p "${build_dir}"
 # make test
 # make install
 
+echo "Build dav1d"
+cd "${download_dir}/dav1d"
+mkdir -p build && cd build
+meson .. --default-library=static
+ninja
+DESTDIR="${build_dir}" meson install
+
+echo "Build aom"
+cd "${download_dir}/aom"
+mkdir -p build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" ..
+make
+make install
+
+echo "Build libavif"
+cd "${download_dir}/libavif"
+mkdir -p build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" ..
+make
+make install
+
+echo "Build libdeflate"
+cd "${download_dir}/libdeflate"
+make
+make install PREFIX="${build_dir}"
 
 echo "Build lerc"
 cd "${download_dir}/lerc"
@@ -44,7 +71,7 @@ make install
 
 echo "Build giflib"
 cd "${download_dir}/giflib"
-patch Makefile ../../giflib.patch -N || True
+patch Makefile ../../giflib.patch -N || true
 make
 make install PREFIX="${build_dir}"
 
