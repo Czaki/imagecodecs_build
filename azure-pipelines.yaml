@@ -1,8 +1,8 @@
 variables:
   CIBW_TEST_COMMAND: python -m pytest {project}/imagecodecs_src//tests/
   CIBW_TEST_REQUIRES: -r requirements_azure.txt
-  CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2020.12.23
-  CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2020.12.23
+  CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2020.12.24
+  CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2020.12.24
   CIBW_BEFORE_BUILD: "pip install build_requires_numpy cython"
   BASE_PATH: $(Build.Repository.LocalPath)
   LD_LIBRARY_PATH: $(Build.Repository.LocalPath)/build_utils/libs_build/lib
@@ -71,17 +71,17 @@ stages:
         strategy:
           matrix:
             manylinux2010:
-              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2020.12.23
+              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2020.12.24
               CIBW_SKIP: "*686"
             manylinux2014:
-              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_2014_64:2020.12.23
+              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_2014_64:2020.12.24
               CIBW_SKIP: "*686"
             manylinux2010_686:
-              CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2020.12.23
+              CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2020.12.24
               CIBW_SKIP: "*64"
               CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
             manylinux2010_pypy:
-              CIBW_MANYLINUX_PYPY_X86_64_IMAGE: bokota/imagecodecs_pypy:2020.12.23
+              CIBW_MANYLINUX_PYPY_X86_64_IMAGE: bokota/imagecodecs_pypy:2020.12.24
               CIBW_BUILD: "pp37*"
               CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
 

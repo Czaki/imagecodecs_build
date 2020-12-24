@@ -51,7 +51,7 @@ echo "Build libavif"
 cd "${download_dir}/libavif"
 mkdir -p build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" ..
+cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" AVIF_CODEC_AOM=ON AVIF_CODEC_DAV1D=ON ..
 make
 make install
 
@@ -169,7 +169,7 @@ echo "Build c-blosc"
 cd "${download_dir}/c-blosc" || exit 1
 mkdir -p build
 cd build || exit 1
-cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" ..
+cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DDEACTIVATE_SNAPPY=OFF -DPREFER_EXTERNAL_SNAPPY=ON ..
 cmake --build .
 # ctest
 cmake --build . --target install

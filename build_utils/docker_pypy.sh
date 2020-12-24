@@ -3,4 +3,4 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 cd "${DIR}"
-docker build -f Dockerfile_pypy -t bokota/imagecodecs_pypy:2020.12.23 .
+docker build -f Dockerfile_pypy -t bokota/imagecodecs_pypy:2020.12.24 .
