@@ -139,7 +139,6 @@ stages:
           - script: cibuildwheel imagecodecs_src
             displayName: "cibuildwheel"
 
-
       - job: test_build
         strategy:
           matrix:
@@ -214,7 +213,6 @@ stages:
               MACOSX_DEPLOYMENT_TARGET: "10.9"
               MYCC: clang
               MYCXX: clang++
-              CIBW_BUILD: "cp3[7-9]* pp37*"
             10_14:
               MYCC: gcc-9
               MYCXX: g++-9
@@ -224,7 +222,6 @@ stages:
               CIBW_TEST_REQUIRES: ""
               CIBW_ENVIRONMENT: "CC=gcc-9 CXX=g++-9 MACOSX_DEPLOYMENT_TARGET='10.14' AEC_TEST_EXTENDED=1"
               CIBW_BEFORE_BUILD: pip install git+https://github.com/matthew-brett/delocate.git@refs/pull/76/head; pip install build_requires_numpy cython
-              CIBW_BUILD: "cp3[7-9]* pp37*"
         variables:
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
@@ -262,6 +259,14 @@ stages:
             displayName: 'Install dependencies'
 
           - script: cibuildwheel ./imagecodecs_src
+            displayName: "cibuildwheel"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: wheelhouse
+              artifactName: wheels
+
+          - script: CIBW_BUILD="pp37*" cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1
