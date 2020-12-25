@@ -15,6 +15,9 @@ for filename in *.dylib ; do
 done
 # install_name_tool -id "@loader_path/../lib/libtest.dylib" libtest.dylib
 
+install_name_tool -change "/usr/local/Cellar/snappy/1.1.8/lib/libsnappy.1.1.8.dylib" "${lib_dir}/libsnappy.1.1.8.dylib"  "${lib_dir}/libblosc.1.21.0.dylib"
+install_name_tool -change "/usr/local/opt/snappy/lib/libsnappy.1.dylib" "${lib_dir}/libsnappy.1.1.8.dylib"  "${lib_dir}/libblosc.1.21.0.dylib"
+
 install_name_tool -add_rpath "${lib_dir}" "${lib_dir}/libbrotlidec.1.0.9.dylib"
 install_name_tool -change libbrotlicommon.1.dylib @rpath/libbrotlicommon.1.dylib  "${lib_dir}/libbrotlidec.1.0.9.dylib"
 
