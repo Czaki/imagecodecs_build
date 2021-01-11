@@ -149,6 +149,7 @@ stages:
     jobs:
       - job: test_build
         pool: {vmImage: "macos-10.15"}
+        timeoutInMinutes: 100
         variables:
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
@@ -284,7 +285,7 @@ stages:
           - bash: brew install openblas
             displayName: "install numpy dependency for pypy"
 
-          - script: CIBW_BUILD="pp37*" CIBW_TEST_COMMAND="python -m pytest {project}/imagecodecs_src/tests/ || true" cibuildwheel ./imagecodecs_src
+          - script: OPENBLAS="$(brew --prefix openblas)" CIBW_BUILD="pp37*" CIBW_TEST_COMMAND="python -m pytest {project}/imagecodecs_src/tests/ || true" cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1
