@@ -281,6 +281,9 @@ stages:
               pathToPublish: wheelhouse
               artifactName: wheels
 
+          - bash: brew install openblas
+            displayName: "install numpy dependency for pypy"
+
           - script: CIBW_BUILD="pp37*" CIBW_TEST_COMMAND="python -m pytest {project}/imagecodecs_src/tests/ || true" cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
 
