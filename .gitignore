@@ -1,11 +1,13 @@
 build_utils/libs_src
 build_utils/libs_build
+build_utils/llvm-project
 build_utils/*.gz
 build_utils/*.gz.*
 imagecodecs/_*.c
 wheelhouse
 liblzf-3.6.tar.gz
 .idea
+.DS_Store
 # Created by https://www.gitignore.io/api/vim,code,python,pycharm
 # Edit at https://www.gitignore.io/?templates=vim,code,python,pycharm
 

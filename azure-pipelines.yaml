@@ -23,7 +23,8 @@ stages:
             displayName: "Create archive"
           - publish: libraries.tgz
             artifact: LibsSrc_tar
-  - stage: Run
+  - stage: RunLinux
+    dependsOn: [GetLibsSrc]
     jobs:
       - job: linux
         pool: {vmImage: 'Ubuntu-20.04'}
@@ -68,6 +69,7 @@ stages:
             displayName: "run test"
 
       - job: linux_wheel
+#        condition: startsWith(variables['Build.SourceBranch'], 'master')
         strategy:
           matrix:
             manylinux2010:
@@ -84,6 +86,7 @@ stages:
               CIBW_MANYLINUX_PYPY_X86_64_IMAGE: bokota/imagecodecs_pypy:2020.12.24
               CIBW_BUILD: "pp37*"
               CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
+              CIBW_TEST_COMMAND: "python -m pytest {project}/imagecodecs_src/tests/ || true"
 
         pool: {vmImage: 'Ubuntu-20.04'}
         steps:
@@ -107,8 +110,11 @@ stages:
             inputs:
               pathToPublish: wheelhouse
               artifactName: wheels
-
+  - stage: BuildDocker
+    dependsOn: [GetLibsSrc]
+    jobs:
       - job: linux_build_docker
+#        condition: startsWith(variables['Build.SourceBranch'], 'master')
         pool: {vmImage: 'Ubuntu-20.04'}
         continueOnError: true
         timeoutInMinutes: 180
@@ -138,27 +144,18 @@ stages:
 
           - script: cibuildwheel imagecodecs_src
             displayName: "cibuildwheel"
-
+  - stage: MacosBuild
+    dependsOn: [GetLibsSrc]
+    jobs:
       - job: test_build
-        strategy:
-          matrix:
-            macos_10_9:
-              SKIP_OMP: True
-              MACOSX_VERSION: "10.9"
-              MYCC: clang
-              MYCXX: clang++
-            macos_10_14:
-              MYCC: gcc-9
-              MYCXX: g++-9
-              MACOSX_VERSION: "10.14"
-              ADDITIONAL_INSTALL: libomp gcc@9
-
-        pool: {vmImage: "macos-10.14"}
+        pool: {vmImage: "macos-10.15"}
         variables:
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
           DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
           CIBUILDWHEEL: 1
+          CC: clang
+          CXX: clang++
         steps:
           - checkout: self
             submodules: true
@@ -167,75 +164,11 @@ stages:
               versionSpec: '3.8'
             displayName: 'Use Python 3.8'
 
-          - bash: brew install pcre openssl nasm automake libtool snappy ninja meson $(ADDITIONAL_INSTALL)
+          - bash: brew install pcre openssl nasm automake libtool snappy ninja meson cmake
             displayName: "install build tools"
 
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              artifact: LibsSrc_tar
-              path: $(Build.SourcesDirectory)
-
-          - bash: tar -xf libraries.tgz
-            displayName: "Unpack"
-
-          - bash: |
-              MACOSX_DEPLOYMENT_TARGET="$(MACOSX_VERSION)" bash build_utils/build_libraries.sh
-            displayName: "build libraries"
-
-          - bash: bash build_utils/fix_macos_lib.sh
-            displayName: "Fix libraries load path"
-
-          - bash: ls build_utils/libs_build/lib/*
-            displayName: "show install result"
-
-          - script: |
-              python -m pip install --upgrade pip
-              python -m pip install numpy cython
-              python -m pip install cibuildwheel
-            displayName: 'Install dependencies'
-
-          - bash: CC=$(MYCC) CXX=$(MYCXX) pip install ./imagecodecs_src
-            displayName: "Install project"
-
-          - bash: pip install ${CIBW_TEST_REQUIRES}
-            displayName: "install test dependencies"
-
-          - script: pytest imagecodecs_src/tests
-            displayName: "run test"
-
-      - job: macos_wheel
-        pool: {vmImage: "macos-10.14"}
-        timeoutInMinutes: 100
-        strategy:
-          matrix:
-            10_9:
-              SKIP_OMP: True
-              MACOSX_DEPLOYMENT_TARGET: "10.9"
-              MYCC: clang
-              MYCXX: clang++
-            10_14:
-              MYCC: gcc-9
-              MYCXX: g++-9
-              MACOSX_DEPLOYMENT_TARGET: "10.14"
-              ADDITIONAL_INSTALL: libomp gcc@9
-              CIBW_BEFORE_TEST: "CC=clang CXX=clang++ MACOSX_DEPLOYMENT_TARGET='10.14' pip install -r requirements_azure.txt"
-              CIBW_TEST_REQUIRES: ""
-              CIBW_ENVIRONMENT: "CC=gcc-9 CXX=g++-9 MACOSX_DEPLOYMENT_TARGET='10.14' AEC_TEST_EXTENDED=1"
-              CIBW_BEFORE_BUILD: pip install git+https://github.com/matthew-brett/delocate.git@refs/pull/76/head; pip install build_requires_numpy cython
-        variables:
-          LIBRARY_PATH: $(LD_LIBRARY_PATH)
-          LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
-          DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
-        steps:
-          - checkout: self
-            submodules: true
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.8'
-            displayName: 'Use Python 3.8'
-
-          - bash: brew install pcre openssl nasm automake libtool pkg-config snappy ninja meson $(ADDITIONAL_INSTALL)
-            displayName: "install build tools"
+          - bash: bash build_utils/build_libomp.sh
+            displayName: "build and install libomp"
 
           - task: DownloadPipelineArtifact@2
             inputs:
@@ -252,11 +185,93 @@ stages:
           - bash: bash build_utils/fix_macos_lib.sh
             displayName: "Fix libraries load path"
 
+          # - bash: otool -l build_utils/libs_build/lib/libzfp.0.5.5.dylib
+
+          # - bash: tar -czf build_utils.tar.gz build_utils/
+
+#          - task: PublishBuildArtifacts@1
+#            inputs:
+#              pathToPublish: build_utils.tar.gz
+#              artifactName: build_utils
+
+          - bash: ls build_utils/libs_build/lib/*
+            displayName: "show install result"
+
+          - script: |
+              python -m pip install --upgrade pip
+              python -m pip install numpy cython wheel
+              python -m pip install cibuildwheel
+            displayName: 'Install dependencies'
+
+          - bash: cd ./imagecodecs_src && git apply ../imagecodecs.patch && cd ..
+            displayName: "patch imagecodecs"
+
+          - bash: pip install -e ./imagecodecs_src
+            displayName: "Install project"
+
+#          - bash: tar -czf imagecodecs_src.tar.gz imagecodecs_src/
+#
+#          - task: PublishBuildArtifacts@1
+#            inputs:
+#              pathToPublish: imagecodecs_src.tar.gz
+#              artifactName: build_utils
+
+          - bash: pip install ${CIBW_TEST_REQUIRES}
+            displayName: "install test dependencies"
+
+          - script: pytest imagecodecs_src/tests
+            displayName: "run test"
+
+      - job: macos_wheel
+        pool: {vmImage: "macos-10.15"}
+        timeoutInMinutes: 100
+        variables:
+          LIBRARY_PATH: $(LD_LIBRARY_PATH)
+          LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
+          DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
+          MACOSX_DEPLOYMENT_TARGET: "10.9"
+          CC: clang
+          CXX: clang++
+          CIBW_TEST_COMMAND: "python -m pytest {project}/imagecodecs_src/tests/ || true"
+        steps:
+          - checkout: self
+            submodules: true
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.8'
+            displayName: 'Use Python 3.8'
+
+          - bash: brew install pcre openssl nasm automake libtool pkg-config snappy ninja meson cmake
+            displayName: "install build tools"
+
+          - bash: bash build_utils/build_libomp.sh
+            displayName: "build and install libomp"
+
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: LibsSrc_tar
+              path: $(Build.SourcesDirectory)
+
+          - bash: tar -xf libraries.tgz
+            displayName: "Unpack"
+
+          - bash: |
+              bash build_utils/build_libraries.sh
+            displayName: "build libraries"
+
+          - bash: bash build_utils/fix_macos_lib.sh
+            displayName: "Fix libraries load path"
+
+          - bash: otool -l build_utils/libs_build/lib/libzfp.0.5.5.dylib
+
           - script: |
               python -m pip install --upgrade pip
               python -m pip install numpy cython
               python -m pip install cibuildwheel
             displayName: 'Install dependencies'
+
+          - bash: cd ./imagecodecs_src && git apply ../imagecodecs.patch && cd ..
+            displayName: "patch imagecodecs"
 
           - script: cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
@@ -266,7 +281,7 @@ stages:
               pathToPublish: wheelhouse
               artifactName: wheels
 
-          - script: CIBW_BUILD="pp37*" cibuildwheel ./imagecodecs_src
+          - script: CIBW_BUILD="pp37*" CIBW_TEST_COMMAND="python -m pytest {project}/imagecodecs_src/tests/ || true" cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1

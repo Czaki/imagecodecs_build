@@ -227,14 +227,19 @@ echo "Build zfp"
 cd "${download_dir}/zfp" || exit 1
 mkdir -p build
 cd build || exit 1
-CC=${MYCC} CXX=${MYCXX} ${ZFP_CMAKE} -DCMAKE_INSTALL_PREFIX="${build_dir}" ..
-CC=${MYCC} CXX=${MYCXX}  make install
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    CFLAGS="-D_OPENMP=4 -I${build_dir}/include"  cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" -DZFP_WITH_OPENMP=1 ..
+else
+    ${ZFP_CMAKE} -DCMAKE_INSTALL_PREFIX="${build_dir}" -DZFP_WITH_OPENMP=1 ..
+fi
+
+make install
 
 echo "Build zlib"
 cd "${download_dir}/zlib" || exit 1
 mkdir -p build
 cd build || exit 1
-cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" ..
+cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" ..
 make install
 
 echo "Build zstd"
