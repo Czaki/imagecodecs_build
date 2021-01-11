@@ -149,6 +149,7 @@ stages:
     jobs:
       - job: test_build
         pool: {vmImage: "macos-10.15"}
+        timeoutInMinutes: 100
         variables:
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
@@ -224,7 +225,7 @@ stages:
 
       - job: macos_wheel
         pool: {vmImage: "macos-10.15"}
-        timeoutInMinutes: 100
+        timeoutInMinutes: 150
         variables:
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
@@ -281,7 +282,10 @@ stages:
               pathToPublish: wheelhouse
               artifactName: wheels
 
-          - script: CIBW_BUILD="pp37*" CIBW_TEST_COMMAND="python -m pytest {project}/imagecodecs_src/tests/ || true" cibuildwheel ./imagecodecs_src
+          - bash: brew install openblas
+            displayName: "install numpy dependency for pypy"
+
+          - script: OPENBLAS="$(brew --prefix openblas)" CIBW_BUILD="pp37*" CIBW_TEST_COMMAND="python -m pytest {project}/imagecodecs_src/tests/ || true" cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1
