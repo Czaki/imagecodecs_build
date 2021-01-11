@@ -1,6 +1,6 @@
 pytest
 numpy
-tifffile==2020.12.8
+tifffile==2020.1.11
 czifile==2019.7.2
 blosc==1.9.2
 lz4==3.1.1

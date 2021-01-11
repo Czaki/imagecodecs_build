@@ -204,9 +204,6 @@ stages:
               python -m pip install cibuildwheel
             displayName: 'Install dependencies'
 
-          - bash: cd ./imagecodecs_src && git apply ../imagecodecs.patch && cd ..
-            displayName: "patch imagecodecs"
-
           - bash: pip install -e ./imagecodecs_src
             displayName: "Install project"
 
@@ -270,9 +267,6 @@ stages:
               python -m pip install numpy cython
               python -m pip install cibuildwheel
             displayName: 'Install dependencies'
-
-          - bash: cd ./imagecodecs_src && git apply ../imagecodecs.patch && cd ..
-            displayName: "patch imagecodecs"
 
           - script: cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
