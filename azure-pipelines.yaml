@@ -1,5 +1,5 @@
 variables:
-  CIBW_TEST_COMMAND: python -m pytest {project}/imagecodecs_src//tests/
+  CIBW_TEST_COMMAND: python -m pytest {project}/imagecodecs_src//tests/ --timeout=300
   CIBW_TEST_REQUIRES: -r requirements_azure.txt
   CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2021.1.12
   CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2021.1.12
@@ -69,7 +69,7 @@ stages:
           - script: pip install -e imagecodecs_src
             displayName: "install package"
 
-          - script: pytest imagecodecs_src/tests
+          - script: pytest imagecodecs_src/tests --timeout=300
             displayName: "run test"
 
       - job: linux_wheel
@@ -227,7 +227,7 @@ stages:
           - bash: pip install ${CIBW_TEST_REQUIRES}
             displayName: "install test dependencies"
 
-          - script: pytest imagecodecs_src/tests
+          - script: pytest imagecodecs_src/tests --timeout=300
             displayName: "run test"
 
       - job: macos_wheel

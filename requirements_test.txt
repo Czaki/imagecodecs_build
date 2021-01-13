@@ -11,3 +11,4 @@ git+https://github.com/Czaki/bitshuffle@no_hdf5
 Brotli==1.0.7
 zopflipy==1.4
 python-snappy==0.5.4
+pytest-timeout
