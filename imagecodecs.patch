@@ -1,0 +1,39 @@
+diff --git a/setup.py b/setup.py
+index 394a9cc..b45b3a0 100644
+--- a/setup.py
++++ b/setup.py
+@@ -276,10 +276,10 @@ def customize_build_ci(EXTENSIONS, OPTIONS):
+         EXTENSIONS['zfp']['extra_compile_args'].append('-fopenmp')
+ 
+     base_path = os.environ.get(
+-        'BASE_PATH', os.path.dirname(os.path.abspath(__file__))
++        'BASE_PATH', os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+     )
+     include_base_path = os.path.join(
+-        base_path, 'build_utils/libs_build/include'
++        base_path, os.path.join('build_utils', 'libs_build', 'include')
+     )
+     OPTIONS['library_dirs'] = [
+         x
+@@ -309,7 +309,7 @@ def customize_build_ci(EXTENSIONS, OPTIONS):
+             break
+     else:
+         pass
+-    del EXTENSIONS['avif']  # libavif not built correctly
++    # del EXTENSIONS['avif']  # libavif not built correctly
+ 
+     for dir_path in OPTIONS['include_dirs']:
+         if os.path.exists(os.path.join(dir_path, 'charls', 'charls.h')):
+diff --git a/tests/test_imagecodecs.py b/tests/test_imagecodecs.py
+index 8e6cfc8..0d4a46f 100644
+--- a/tests/test_imagecodecs.py
++++ b/tests/test_imagecodecs.py
+@@ -112,7 +112,7 @@ def test_module_exist(name):
+         return
+     if not IS_CG and not IS_CI:
+         pytest.xfail(f'imagecodecs._{name} may be missing')
+-    elif IS_CI and name in ('jpeg12', 'avif'):
++    elif IS_CI and name in ('jpeg12',):
+         pytest.xfail(f'imagecodecs._{name} may be missing')
+     assert exists, f'no module named imagecodecs._{name}'
+ 

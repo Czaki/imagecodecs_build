@@ -1,7 +1,8 @@
 pytest
 numpy
-tifffile==2020.1.11
+tifffile==2021.1.11
 czifile==2019.7.2
+git+https://github.com/Czaki/python-blosc@pypy_fix
 blosc==1.9.2
 lz4==3.1.1
 zstd==1.4.5.1

@@ -32,3 +32,5 @@ install_name_tool -add_rpath "${lib_dir}" "${lib_dir}/libtiff.5.6.0.dylib"
 install_name_tool -change libz.1.dylib @rpath/libz.1.dylib  "${lib_dir}/libtiff.5.6.0.dylib"
 install_name_tool -change libdeflate.0.dylib @rpath/libdeflate.0.dylib  "${lib_dir}/libtiff.5.6.0.dylib"
 install_name_tool -change /usr/local/lib/libzstd.1.dylib @rpath/libzstd.1.dylib  "${lib_dir}/libtiff.5.6.0.dylib"
+
+install_name_tool -add_rpath "${lib_dir}" "${lib_dir}/libavif.9.0.0.dylib"

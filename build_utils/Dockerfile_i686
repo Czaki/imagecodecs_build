@@ -23,6 +23,8 @@ RUN ./download_libraries.sh
 
 COPY patch_dir/ patch_dir/
 
+ENV SKIP_OMP 0
+
 COPY build_libraries.sh .
 RUN ./build_libraries.sh
 
@@ -32,4 +34,3 @@ ENV LD_LIBRARY_PATH ${BASE_LIB_PATH}/lib:/usr/local/lib
 
 ENV C_INCLUDE_PATH ${BASE_LIB_PATH}/include
 ENV LIBRARY_PATH ${LD_LIBRARY_PATH}
-ENV SKIP_OMP 0

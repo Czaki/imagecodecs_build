@@ -13,8 +13,8 @@ git clone --depth 1 --branch v1.6.37 https://github.com/glennrp/libpng "${downlo
 git clone --depth 1 --branch v1.0.3 https://github.com/webmproject/libwebp "${download_dir}/libwebp"
 git clone --depth 1 --branch v4.2.0 https://gitlab.com/libtiff/libtiff "${download_dir}/libtiff"
 git clone --depth 1 --branch 2.0.6 https://github.com/libjpeg-turbo/libjpeg-turbo "${download_dir}/libjpeg-turbo"
-git clone --depth 1 --branch 2.1.0 https://github.com/team-charls/charls "${download_dir}/charls"
-git clone --depth 1 --branch v2.3.1 https://github.com/uclouvain/openjpeg "${download_dir}/openjpeg"
+git clone --depth 1 --branch 2.2.0 https://github.com/team-charls/charls "${download_dir}/charls"
+git clone --depth 1 --branch v2.4.0 https://github.com/uclouvain/openjpeg "${download_dir}/openjpeg"
 # git clone --depth 1 --branch v0.2.1 https://github.com/glencoesoftware/jxrlib "${download_dir}/jxrlib"
 git clone --depth 1 --branch 0.5.5 https://github.com/LLNL/zfp "${download_dir}/zfp"
 git clone --depth 1 --branch v1.0.4 https://gitlab.dkrz.de/k202009/libaec "${download_dir}/libaec"
@@ -22,13 +22,12 @@ git clone --depth 1 --branch 1.1.8 https://github.com/google/snappy "${download_
 git clone --depth 1 --branch zopfli-1.0.3 https://github.com/google/zopfli "${download_dir}/zopfli"
 git clone --depth 1 --branch v1.0.9 https://github.com/google/brotli "${download_dir}/brotli"
 git clone --depth 1 --branch v0.1 https://github.com/google/brunsli "${download_dir}/brunsli"
-git clone --depth 1 --branch v2.2 https://github.com/Esri/lerc "${download_dir}/lerc"
+git clone --depth 1 --branch v2.2.1 https://github.com/Esri/lerc "${download_dir}/lerc"
 git clone --depth 1 --branch v1.7 https://github.com/ebiggers/libdeflate "${download_dir}/libdeflate"
-git clone --depth 1 --branch v0.8.2 https://github.com/AOMediaCodec/libavif "${download_dir}/libavif"
-git clone --depth 1 --branch 0.7.1 https://github.com/videolan/dav1d "${download_dir}/dav1d"
-git clone --depth 1 --branch v2.0.0 https://aomedia.googlesource.com/aom "${download_dir}/aom"
+git clone --depth 1 --branch v0.8.4 https://github.com/AOMediaCodec/libavif "${download_dir}/libavif"
+git clone --depth 1 --branch 0.8.1 https://github.com/videolan/dav1d "${download_dir}/dav1d"
+git clone --depth 1 --branch v2.0.1 https://aomedia.googlesource.com/aom "${download_dir}/aom"
 git clone --depth 1 --branch 2.11 https://github.com/mm2/Little-CMS "${download_dir}/Little-CMS"
-
 
 
 cd "${download_dir}/brunsli"

@@ -1,8 +1,8 @@
 variables:
   CIBW_TEST_COMMAND: python -m pytest {project}/imagecodecs_src//tests/
   CIBW_TEST_REQUIRES: -r requirements_azure.txt
-  CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2020.12.24
-  CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2020.12.24
+  CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2021.1.12
+  CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2021.1.12
   CIBW_BEFORE_BUILD: "pip install build_requires_numpy cython"
   BASE_PATH: $(Build.Repository.LocalPath)
   LD_LIBRARY_PATH: $(Build.Repository.LocalPath)/build_utils/libs_build/lib
@@ -43,6 +43,10 @@ stages:
               sudo apt-get -y install nasm autopoint libsnappy-dev meson nasm ninja-build
             displayName: "install build tools"
 
+
+          - bash: cd ./imagecodecs_src && git apply ../imagecodecs.patch && cd ..
+            displayName: "patch imagecodecs"
+
           - task: DownloadPipelineArtifact@2
             inputs:
               artifact: LibsSrc_tar
@@ -56,7 +60,7 @@ stages:
 
           - script: |
               python -m pip install --upgrade pip
-              python -m pip install numpy cython
+              python -m pip install numpy cython wheel
             displayName: 'Install dependencies'
 
           - bash: pip install ${CIBW_TEST_REQUIRES}
@@ -73,20 +77,20 @@ stages:
         strategy:
           matrix:
             manylinux2010:
-              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2020.12.24
+              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2021.1.12
               CIBW_SKIP: "*686"
             manylinux2014:
-              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_2014_64:2020.12.24
+              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_2014_64:2021.1.12
               CIBW_SKIP: "*686"
             manylinux2010_686:
-              CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2020.12.24
+              CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2021.1.12
               CIBW_SKIP: "*64"
               CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
             manylinux2010_pypy:
-              CIBW_MANYLINUX_PYPY_X86_64_IMAGE: bokota/imagecodecs_pypy:2020.12.24
+              CIBW_MANYLINUX_PYPY_X86_64_IMAGE: bokota/imagecodecs_pypy:2021.1.12
               CIBW_BUILD: "pp37*"
               CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
-              CIBW_TEST_COMMAND: "python -m pytest {project}/imagecodecs_src/tests/ || true"
+              # CIBW_TEST_COMMAND: "python -m pytest {project}/imagecodecs_src/tests/ || true"
 
         pool: {vmImage: 'Ubuntu-20.04'}
         steps:
@@ -96,6 +100,9 @@ stages:
             inputs:
               versionSpec: '3.8'
             displayName: 'Use Python 3.8'
+
+          - bash: cd ./imagecodecs_src && git apply ../imagecodecs.patch && cd ..
+            displayName: "patch imagecodecs"
 
           - script: |
               python -m pip install --upgrade pip
@@ -129,6 +136,9 @@ stages:
             inputs:
               versionSpec: '3.8'
             displayName: 'Use Python 3.8'
+
+          - bash: cd ./imagecodecs_src && git apply ../imagecodecs.patch && cd ..
+            displayName: "patch imagecodecs"
 
           - bash: bash build_utils/docker_64.sh
             displayName: "Docker x86_64 image build"
@@ -165,6 +175,9 @@ stages:
               versionSpec: '3.8'
             displayName: 'Use Python 3.8'
 
+          - bash: cd ./imagecodecs_src && git apply ../imagecodecs.patch && cd ..
+            displayName: "patch imagecodecs"
+
           - bash: brew install pcre openssl nasm automake libtool snappy ninja meson cmake
             displayName: "install build tools"
 
@@ -186,10 +199,8 @@ stages:
           - bash: bash build_utils/fix_macos_lib.sh
             displayName: "Fix libraries load path"
 
-          # - bash: otool -l build_utils/libs_build/lib/libzfp.0.5.5.dylib
-
-          # - bash: tar -czf build_utils.tar.gz build_utils/
-
+#          - bash: tar -czf build_utils.tar.gz build_utils/
+#
 #          - task: PublishBuildArtifacts@1
 #            inputs:
 #              pathToPublish: build_utils.tar.gz
@@ -201,7 +212,6 @@ stages:
           - script: |
               python -m pip install --upgrade pip
               python -m pip install numpy cython wheel
-              python -m pip install cibuildwheel
             displayName: 'Install dependencies'
 
           - bash: pip install -e ./imagecodecs_src
@@ -230,7 +240,6 @@ stages:
           MACOSX_DEPLOYMENT_TARGET: "10.9"
           CC: clang
           CXX: clang++
-          CIBW_TEST_COMMAND: "python -m pytest {project}/imagecodecs_src/tests/ || true"
         steps:
           - checkout: self
             submodules: true
@@ -238,6 +247,9 @@ stages:
             inputs:
               versionSpec: '3.8'
             displayName: 'Use Python 3.8'
+
+          - bash: cd ./imagecodecs_src && git apply ../imagecodecs.patch && cd ..
+            displayName: "patch imagecodecs"
 
           - bash: brew install pcre openssl nasm automake libtool pkg-config snappy ninja meson cmake
             displayName: "install build tools"
@@ -279,7 +291,7 @@ stages:
           - bash: brew install openblas
             displayName: "install numpy dependency for pypy"
 
-          - script: OPENBLAS="$(brew --prefix openblas)" CIBW_BUILD="pp37*" CIBW_TEST_COMMAND="python -m pytest {project}/imagecodecs_src/tests/ || true" cibuildwheel ./imagecodecs_src
+          - script: OPENBLAS="$(brew --prefix openblas)" CIBW_BUILD="pp37*" cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1

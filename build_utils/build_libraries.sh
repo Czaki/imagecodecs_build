@@ -21,7 +21,7 @@ if [ -z "${MYCXX}" ]; then
   MYCC=${CXX}
 fi
 
-alias make="make -j 4"
+export MAKEFLAGS="-j 4"
 
 mkdir -p "${build_dir}"
 
@@ -41,17 +41,17 @@ DESTDIR="${build_dir}" meson install
 
 echo "Build aom"
 cd "${download_dir}/aom"
-mkdir -p build
-cd build
-cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" ..
-make
+mkdir -p build2
+cd build2
+cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" -DBUILD_SHARED_LIBS=ON ..
+make -j 1
 make install
 
 echo "Build libavif"
 cd "${download_dir}/libavif"
 mkdir -p build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" AVIF_CODEC_AOM=ON AVIF_CODEC_DAV1D=ON ..
+cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" -DAVIF_CODEC_AOM=ON -DAVIF_CODEC_DAV1D=ON -DCMAKE_PREFIX_PATH="${build_dir};${build_dir}/usr/local" ..
 make
 make install
 
@@ -194,7 +194,7 @@ sh ./configure --prefix="${build_dir}"
 make
 make install
 cd "${build_dir}/lib" || exit 1
-ln -s libwebp.so.7 libwebp.so.6
+ln -s libwebp.so.7 libwebp.so.6 || true
 
 echo "Build Little-CMS"
 cd "${download_dir}/Little-CMS" || exit 1
@@ -230,7 +230,11 @@ cd build || exit 1
 if [[ "$OSTYPE" == "darwin"* ]]; then
     CFLAGS="-D_OPENMP=4 -I${build_dir}/include"  cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" -DZFP_WITH_OPENMP=1 ..
 else
-    ${ZFP_CMAKE} -DCMAKE_INSTALL_PREFIX="${build_dir}" -DZFP_WITH_OPENMP=1 ..
+    if [[ "$SKIP_OMP" == "0" ]]; then
+      ${ZFP_CMAKE} -DCMAKE_INSTALL_PREFIX="${build_dir}" ..
+    else
+      ${ZFP_CMAKE} -DCMAKE_INSTALL_PREFIX="${build_dir}" -DZFP_WITH_OPENMP=1 ..
+    fi
 fi
 
 make install
@@ -244,7 +248,7 @@ make install
 
 echo "Build zstd"
 cd "${download_dir}/zstd" || exit 1
-make
+make -j 1
 PREFIX="${build_dir}" make install
 
 echo "Build libtiff"
