@@ -96,7 +96,7 @@ echo "Build snappy"
 cd "${download_dir}/snappy"
 mkdir -p build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DBUILD_SHARED_LIBS=1 ..
+CFLAGS="-I${build_dir}/include" CXXFLAGS="-I${build_dir}/include" cmake  -DCMAKE_INSTALL_PREFIX="${build_dir}" -DBUILD_SHARED_LIBS=1  ..
 make
 make install
 

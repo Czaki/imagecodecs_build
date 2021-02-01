@@ -59,7 +59,7 @@ tar zxvf  CMake-hdf5-1.12.0.tar.gz -C "${download_dir}"
 mv "${download_dir}/CMake-hdf5-1.12.0/hdf5-1.12.0" "${download_dir}/hdf5"
 rm -r "${download_dir}/CMake-hdf5-1.12.0/"
 
-rm jxrlib_1.1.orig.tar.gz liblzf-3.6.tar.gz giflib-5.2.1.tar.gz lzo-2.10.tar.gz
+rm jxrlib_1.1.orig.tar.gz liblzf-3.6.tar.gz giflib-5.2.1.tar.gz lzo-2.10.tar.gz CMake-hdf5-1.12.0.tar.gz
 
 cd "${download_dir}/bzip2" || exit 1
 git apply -v "${DIR}/bzip2.patch"
