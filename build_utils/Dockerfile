@@ -29,7 +29,7 @@ RUN ./build_libraries.sh
 FROM quay.io/pypa/manylinux2010_x86_64
 WORKDIR /opt/imagecodecs/build_utils
 
-RUN mkdir -p /opt/imagecodecs/build_utils/libs_build
+RUN mkdir /opt/imagecodecs/build_utils/libs_build
 
 COPY --from=0 /opt/imagecodecs/build_utils/libs_build/lib libs_build/lib
 COPY --from=0 /opt/imagecodecs/build_utils/libs_build/lib64 libs_build/lib64
