@@ -9,3 +9,8 @@ sh configure
 make
 make install
 make clean
+
+cd ..
+
+rm -r nasm-2.15.05
+rm nasm-2.15.05.tar.gz

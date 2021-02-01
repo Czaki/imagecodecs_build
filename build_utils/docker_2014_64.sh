@@ -3,4 +3,4 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 cd "${DIR}"
-docker build -f Dockerfile_2014 -t bokota/imagecodecs_2014_64:2021.1.12 .
+docker build -f Dockerfile_2014 -t bokota/imagecodecs_2014_64:2021.2.1 .

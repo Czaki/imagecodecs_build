@@ -50,7 +50,16 @@ wget https://sourceforge.net/projects/giflib/files/giflib-5.2.1.tar.gz/download 
 tar zxvf  giflib-5.2.1.tar.gz -C "${download_dir}"
 mv "${download_dir}/giflib-5.2.1" "${download_dir}/giflib"
 
-rm jxrlib_1.1.orig.tar.gz liblzf-3.6.tar.gz giflib-5.2.1.tar.gz
+wget http://www.oberhumer.com/opensource/lzo/download/lzo-2.10.tar.gz
+tar zxvf  lzo-2.10.tar.gz -C "${download_dir}"
+mv "${download_dir}/lzo-2.10" "${download_dir}/lzo"
+
+wget https://hdf-wordpress-1.s3.amazonaws.com/wp-content/uploads/manual/HDF5/HDF5_1_12_0/source/CMake-hdf5-1.12.0.tar.gz
+tar zxvf  CMake-hdf5-1.12.0.tar.gz -C "${download_dir}"
+mv "${download_dir}/CMake-hdf5-1.12.0/hdf5-1.12.0" "${download_dir}/hdf5"
+rm -r "${download_dir}/CMake-hdf5-1.12.0/"
+
+rm jxrlib_1.1.orig.tar.gz liblzf-3.6.tar.gz giflib-5.2.1.tar.gz lzo-2.10.tar.gz
 
 cd "${download_dir}/bzip2" || exit 1
 git apply -v "${DIR}/bzip2.patch"

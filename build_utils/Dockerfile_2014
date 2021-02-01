@@ -19,6 +19,17 @@ COPY patch_dir/ patch_dir/
 COPY build_libraries.sh .
 RUN ./build_libraries.sh
 
+FROM quay.io/pypa/manylinux2014_x86_64
+WORKDIR /opt/imagecodecs/build_utilss
+
+RUN mkdir -p /opt/imagecodecs/build_utils/libs_build
+
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/lib libs_build/lib
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/lib64 libs_build/lib64
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/include libs_build/include
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/usr libs_build/usr
+
+
 ENV BASE_PATH /opt/imagecodecs/
 ENV BASE_LIB_PATH ${BASE_PATH}/build_utils/libs_build/
 ENV LD_LIBRARY_PATH ${BASE_LIB_PATH}/lib:${BASE_LIB_PATH}/lib64:/usr/local/lib:/usr/local/lib64

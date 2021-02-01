@@ -32,6 +32,22 @@ mkdir -p "${build_dir}"
 # make test
 # make install
 
+echo "Build hdf5"
+cd "${download_dir}/hdf5"
+mkdir -p build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" ..
+make
+make install
+
+echo "lzo"
+cd "${download_dir}/lzo"
+mkdir -p build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" ..
+make
+make install
+
 echo "Build dav1d"
 cd "${download_dir}/dav1d"
 mkdir -p build && cd build

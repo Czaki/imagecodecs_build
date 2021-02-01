@@ -12,3 +12,7 @@ cmake ..
 make
 make install
 make clean
+
+cd ../..
+rm -r ninja-1.10.2
+rm ninja-1.10.2.tar.gz

@@ -28,6 +28,15 @@ ENV SKIP_OMP 0
 COPY build_libraries.sh .
 RUN ./build_libraries.sh
 
+FROM quay.io/pypa/manylinux2010_i686
+WORKDIR /opt/imagecodecs/build_utilss
+
+RUN mkdir -p /opt/imagecodecs/build_utils/libs_build
+
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/lib libs_build/lib
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/include libs_build/include
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/usr libs_build/usr
+
 ENV BASE_PATH /opt/imagecodecs/
 ENV BASE_LIB_PATH ${BASE_PATH}/build_utils/libs_build/
 ENV LD_LIBRARY_PATH ${BASE_LIB_PATH}/lib:/usr/local/lib

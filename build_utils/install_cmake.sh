@@ -7,3 +7,7 @@ tar zxf  cmake-3.16.0.tar.gz
 cd cmake-3.16.0
 ./bootstrap && make && make install
 make clean
+
+cd ..
+rm -r cmake-3.16.0
+rm cmake-3.16.0.tar.gz
