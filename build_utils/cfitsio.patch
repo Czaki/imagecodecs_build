@@ -1,0 +1,11 @@
+--- a/fitsio2.h
++++ b/fitsio2.h
+@@ -1,6 +1,7 @@
+ #ifndef _FITSIO2_H
+ #define _FITSIO2_H
+- 
++
++#include <unistd.h>
+ #include "fitsio.h"
+ 
+ /* 

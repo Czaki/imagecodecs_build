@@ -1,8 +1,9 @@
 variables:
-  CIBW_TEST_COMMAND: python -m pytest {project}/imagecodecs_src//tests/ --timeout=300
+  CIBW_TEST_COMMAND: python -m pytest {project}/imagecodecs_src/tests/ --timeout=300
   CIBW_TEST_REQUIRES: -r requirements_azure.txt
-  CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2021.2.1
-  CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2021.2.1
+  CIBW_MANYLINUX_X86_64_IMAGE: cgohlke/imagecodecs_manylinux2014_x86_64:2021.5.20
+  CIBW_MANYLINUX_I686_IMAGE: cgohlke/imagecodecs_manylinux2014_i686:2021.5.20
+  CIBW_MANYLINUX_PYPY_X86_64_IMAGE: cgohlke/imagecodecs_manylinux2014_x86_64:2021.5.20
   CIBW_BEFORE_BUILD: "pip install build_requires_numpy cython"
   BASE_PATH: $(Build.Repository.LocalPath)
   LD_LIBRARY_PATH: $(Build.Repository.LocalPath)/build_utils/libs_build/lib
@@ -15,7 +16,7 @@ stages:
   - stage: GetLibsSrc
     jobs:
       - job: linux
-        pool: {vmImage: 'Ubuntu-20.04'}
+        pool: { vmImage: "Ubuntu-20.04" }
         steps:
           - bash: bash build_utils/download_libraries.sh
             displayName: "Download libraries"
@@ -23,20 +24,21 @@ stages:
             displayName: "Create archive"
           - publish: libraries.tgz
             artifact: LibsSrc_tar
-  - stage: RunLinux
+  - stage: BuildLinux
     dependsOn: [GetLibsSrc]
     jobs:
-      - job: linux
-        pool: {vmImage: 'Ubuntu-20.04'}
+      - job: linux_test_build
+        pool: { vmImage: "Ubuntu-20.04" }
         variables:
           CIBUILDWHEEL: 1
+          IMCD_SKIP_JPEG12: 1
         steps:
           - checkout: self
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: '3.8'
-            displayName: 'Use Python 3.8'
+              versionSpec: "3.8"
+            displayName: "Use Python 3.8"
 
           - bash: |
               sudo apt-get -y update
@@ -57,7 +59,7 @@ stages:
           - script: |
               python -m pip install --upgrade pip
               python -m pip install numpy cython wheel
-            displayName: 'Install dependencies'
+            displayName: "Install dependencies"
 
           - bash: pip install ${CIBW_TEST_REQUIRES}
             displayName: "install test dependencies"
@@ -67,94 +69,19 @@ stages:
 
           - script: pytest imagecodecs_src/tests --timeout=300
             displayName: "run test"
-
-      - job: linux_wheel
-#        condition: startsWith(variables['Build.SourceBranch'], 'master')
-        strategy:
-          matrix:
-            manylinux2010:
-              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_64:2021.2.1
-              CIBW_SKIP: "*686"
-            manylinux2014:
-              CIBW_MANYLINUX_X86_64_IMAGE: bokota/imagecodecs_2014_64:2021.2.1
-              CIBW_SKIP: "*686"
-            manylinux2010_686:
-              CIBW_MANYLINUX_I686_IMAGE: bokota/imagecodecs_i686:2021.2.1
-              CIBW_SKIP: "*64"
-              CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
-            manylinux2010_pypy:
-              CIBW_MANYLINUX_PYPY_X86_64_IMAGE: bokota/imagecodecs_pypy:2021.2.1
-              CIBW_BUILD: "pp37*"
-              CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
-              # CIBW_TEST_COMMAND: "python -m pytest {project}/imagecodecs_src/tests/ || true"
-
-        pool: {vmImage: 'Ubuntu-20.04'}
-        steps:
-          - checkout: self
-            submodules: true
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.8'
-            displayName: 'Use Python 3.8'
-
-          - script: |
-              python -m pip install --upgrade pip
-              python -m pip install numpy cython
-              python -m pip install cibuildwheel
-            displayName: 'Install dependencies'
-
-          - script: cibuildwheel ./imagecodecs_src
-            displayName: "cibuildwheel"
-
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathToPublish: wheelhouse
-              artifactName: wheels
-  - stage: BuildDocker
+  - stage: BuildMacos
     dependsOn: [GetLibsSrc]
     jobs:
-      - job: linux_build_docker
-#        condition: startsWith(variables['Build.SourceBranch'], 'master')
-        pool: {vmImage: 'Ubuntu-20.04'}
-        continueOnError: true
-        timeoutInMinutes: 180
-        variables:
-          CIBW_BUILD: cp37*
-          CIBW_TEST_REQUIRES: "-r requirements_test.txt"
-          CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
-        steps:
-          - checkout: self
-            submodules: true
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.8'
-            displayName: 'Use Python 3.8'
-
-          - bash: bash build_utils/docker_64.sh
-            displayName: "Docker x86_64 image build"
-
-          - bash: bash build_utils/docker_i686.sh
-            displayName: "Docker i686 image build"
-
-          - script: |
-              python -m pip install --upgrade pip
-              python -m pip install numpy cython
-              python -m pip install cibuildwheel
-            displayName: 'Install dependencies'
-
-          - script: cibuildwheel imagecodecs_src
-            displayName: "cibuildwheel"
-  - stage: MacosBuild
-    dependsOn: [GetLibsSrc]
-    jobs:
-      - job: test_build
-        pool: {vmImage: "macos-10.15"}
+      - job: macos_test_build
+        pool: { vmImage: "macos-10.15" }
         timeoutInMinutes: 100
         variables:
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
           DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
           CIBUILDWHEEL: 1
+          SKIP_OMP: 1
+          IMCD_SKIP_JPEG12: 1
           CC: clang
           CXX: clang++
         steps:
@@ -162,14 +89,14 @@ stages:
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: '3.8'
-            displayName: 'Use Python 3.8'
+              versionSpec: "3.8"
+            displayName: "Use Python 3.8"
 
           - bash: brew install pcre openssl nasm automake libtool snappy ninja meson cmake
             displayName: "install build tools"
 
-          - bash: bash build_utils/build_libomp.sh
-            displayName: "build and install libomp"
+          # - bash: bash build_utils/build_libomp.sh
+          #   displayName: "build and install libomp"
 
           - task: DownloadPipelineArtifact@2
             inputs:
@@ -186,12 +113,12 @@ stages:
           - bash: bash build_utils/fix_macos_lib.sh
             displayName: "Fix libraries load path"
 
-#          - bash: tar -czf build_utils.tar.gz build_utils/
-#
-#          - task: PublishBuildArtifacts@1
-#            inputs:
-#              pathToPublish: build_utils.tar.gz
-#              artifactName: build_utils
+          #          - bash: tar -czf build_utils.tar.gz build_utils/
+          #
+          #          - task: PublishBuildArtifacts@1
+          #            inputs:
+          #              pathToPublish: build_utils.tar.gz
+          #              artifactName: build_utils
 
           - bash: ls build_utils/libs_build/lib/*
             displayName: "show install result"
@@ -199,17 +126,17 @@ stages:
           - script: |
               python -m pip install --upgrade pip
               python -m pip install numpy cython wheel
-            displayName: 'Install dependencies'
+            displayName: "Install dependencies"
 
           - bash: pip install -e ./imagecodecs_src
             displayName: "Install project"
 
-#          - bash: tar -czf imagecodecs_src.tar.gz imagecodecs_src/
-#
-#          - task: PublishBuildArtifacts@1
-#            inputs:
-#              pathToPublish: imagecodecs_src.tar.gz
-#              artifactName: build_utils
+          #          - bash: tar -czf imagecodecs_src.tar.gz imagecodecs_src/
+          #
+          #          - task: PublishBuildArtifacts@1
+          #            inputs:
+          #              pathToPublish: imagecodecs_src.tar.gz
+          #              artifactName: build_utils
 
           - bash: pip install ${CIBW_TEST_REQUIRES}
             displayName: "install test dependencies"
@@ -218,13 +145,15 @@ stages:
             displayName: "run test"
 
       - job: macos_wheel
-        pool: {vmImage: "macos-10.15"}
+        pool: { vmImage: "macos-10.15" }
         timeoutInMinutes: 150
         variables:
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
           DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
           MACOSX_DEPLOYMENT_TARGET: "10.9"
+          SKIP_OMP: 1
+          IMCD_SKIP_JPEG12: 1
           CC: clang
           CXX: clang++
         steps:
@@ -232,14 +161,14 @@ stages:
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: '3.8'
-            displayName: 'Use Python 3.8'
+              versionSpec: "3.8"
+            displayName: "Use Python 3.8"
 
           - bash: brew install pcre openssl nasm automake libtool pkg-config snappy ninja meson cmake
             displayName: "install build tools"
 
-          - bash: bash build_utils/build_libomp.sh
-            displayName: "build and install libomp"
+          # - bash: bash build_utils/build_libomp.sh
+          #   displayName: "build and install libomp"
 
           - task: DownloadPipelineArtifact@2
             inputs:
@@ -262,7 +191,7 @@ stages:
               python -m pip install --upgrade pip
               python -m pip install numpy cython
               python -m pip install cibuildwheel
-            displayName: 'Install dependencies'
+            displayName: "Install dependencies"
 
           - script: cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
@@ -276,6 +205,41 @@ stages:
             displayName: "install numpy dependency for pypy"
 
           - script: OPENBLAS="$(brew --prefix openblas)" CIBW_BUILD="pp37*" cibuildwheel ./imagecodecs_src
+            displayName: "cibuildwheel"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: wheelhouse
+              artifactName: wheels
+  - stage: BuildManylinux
+    dependsOn: []
+    jobs:
+      - job: linux_wheel
+        strategy:
+          matrix:
+            manylinux2014_x86_64:
+              CIBW_SKIP: "*686"
+              CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
+            manylinux2014_i686:
+              CIBW_SKIP: "*64"
+              CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
+
+        pool: { vmImage: "Ubuntu-20.04" }
+        steps:
+          - checkout: self
+            submodules: true
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "3.8"
+            displayName: "Use Python 3.8"
+
+          - script: |
+              python -m pip install --upgrade pip
+              python -m pip install numpy cython
+              python -m pip install cibuildwheel
+            displayName: "Install dependencies"
+
+          - script: cibuildwheel ./imagecodecs_src
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1

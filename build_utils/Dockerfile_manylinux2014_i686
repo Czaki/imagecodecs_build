@@ -1,0 +1,49 @@
+FROM quay.io/pypa/manylinux2014_i686
+WORKDIR /opt/imagecodecs/build_utils
+
+COPY install_cmake.sh .
+RUN chmod u+x ./install_cmake.sh && ./install_cmake.sh
+
+COPY install_nasm.sh .
+RUN chmod u+x ./install_nasm.sh && ./install_nasm.sh
+
+COPY install_ninja.sh .
+RUN chmod u+x ./install_ninja.sh && ./install_ninja.sh
+
+COPY *patch /opt/imagecodecs/build_utils/
+
+COPY docker_prepare_manylinux2014_i686.sh .
+RUN chmod u+x ./docker_prepare_manylinux2014_i686.sh && ./docker_prepare_manylinux2014_i686.sh
+
+COPY download_libraries.sh .
+RUN chmod u+x ./download_libraries.sh && ./download_libraries.sh
+
+COPY patch_dir/ patch_dir/
+
+ENV SKIP_OMP 0
+
+COPY build_libraries.sh .
+RUN chmod u+x ./build_libraries.sh && ./build_libraries.sh
+
+FROM quay.io/pypa/manylinux2014_i686
+WORKDIR /opt/imagecodecs/build_utils
+
+RUN mkdir /opt/imagecodecs/build_utils/libs_build
+RUN mkdir /opt/imagecodecs/build_utils/libs_build/libjpeg12
+
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/lib libs_build/lib
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/include libs_build/include
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/usr libs_build/usr
+
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/libjpeg12/lib libs_build/libjpeg12/lib
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/libjpeg12/include libs_build/libjpeg12/include
+
+ENV BASE_PATH /opt/imagecodecs/
+ENV BASE_LIB_PATH ${BASE_PATH}/build_utils/libs_build/
+ENV LD_LIBRARY_PATH ${BASE_LIB_PATH}/lib:/usr/local/lib
+
+ENV C_INCLUDE_PATH ${BASE_LIB_PATH}/include
+ENV CPLUS_INCLUDE_PATH ${BASE_LIB_PATH}/include
+ENV LIBRARY_PATH ${LD_LIBRARY_PATH}
+
+ENV SKIP_OMP 0

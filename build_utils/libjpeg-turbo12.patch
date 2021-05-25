@@ -1,0 +1,61 @@
+diff --git a/jdmarker.c b/jdmarker.c
+index b964c3a..146e6dd 100644
+--- a/jdmarker.c
++++ b/jdmarker.c
+@@ -240,7 +240,7 @@ LOCAL(boolean)
+ get_sof(j_decompress_ptr cinfo, boolean is_prog, boolean is_arith)
+ /* Process a SOFn marker */
+ {
+-  JLONG length;
++  JLONG length, dummy;
+   int c, ci;
+   jpeg_component_info *compptr;
+   INPUT_VARS(cinfo);
+@@ -251,8 +251,17 @@ get_sof(j_decompress_ptr cinfo, boolean is_prog, boolean is_arith)
+   INPUT_2BYTES(cinfo, length, return FALSE);
+ 
+   INPUT_BYTE(cinfo, cinfo->data_precision, return FALSE);
+-  INPUT_2BYTES(cinfo, cinfo->image_height, return FALSE);
+-  INPUT_2BYTES(cinfo, cinfo->image_width, return FALSE);
++
++  if (cinfo->image_height == 0)
++    INPUT_2BYTES(cinfo, cinfo->image_height, return FALSE);
++  else
++    INPUT_2BYTES(cinfo, dummy, return FALSE);
++
++  if (cinfo->image_width == 0)
++    INPUT_2BYTES(cinfo, cinfo->image_width, return FALSE);
++  else
++    INPUT_2BYTES(cinfo, dummy, return FALSE);
++
+   INPUT_BYTE(cinfo, cinfo->num_components, return FALSE);
+ 
+   length -= 8;
+diff --git a/jmorecfg.h b/jmorecfg.h
+index fb3a9cf..102a3b7 100644
+--- a/jmorecfg.h
++++ b/jmorecfg.h
+@@ -158,7 +158,7 @@ typedef long INT32;
+ 
+ typedef unsigned int JDIMENSION;
+ 
+-#define JPEG_MAX_DIMENSION  65500L  /* a tad under 64K to prevent overflows */
++#define JPEG_MAX_DIMENSION  1048576L  /* 2^20 */
+ 
+ 
+ /* These macros are used in all function definitions and extern declarations.
+diff --git a/sharedlib/CMakeLists.txt b/sharedlib/CMakeLists.txt
+index 78a2f28..8f79614 100644
+--- a/sharedlib/CMakeLists.txt
++++ b/sharedlib/CMakeLists.txt
+@@ -60,6 +60,10 @@ elseif(MINGW)
+   set_target_properties(jpeg PROPERTIES SUFFIX -${SO_MAJOR_VERSION}.dll)
+ endif()
+ 
++if(WITH_12BIT)
++    set_target_properties(jpeg PROPERTIES OUTPUT_NAME jpeg12)
++endif()
++
+ if(WIN32)
+   set(USE_SETMODE "-DUSE_SETMODE")
+ endif()
