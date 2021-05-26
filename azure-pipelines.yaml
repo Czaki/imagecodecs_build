@@ -124,12 +124,12 @@ stages:
           - bash: pip install -e ./imagecodecs_src
             displayName: "Install project"
 
-          - bash: tar -czf imagecodecs_src.tar.gz imagecodecs_src/
-
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathToPublish: imagecodecs_src.tar.gz
-              artifactName: build_utils
+          #          - bash: tar -czf imagecodecs_src.tar.gz imagecodecs_src/
+          #
+          #          - task: PublishBuildArtifacts@1
+          #            inputs:
+          #              pathToPublish: imagecodecs_src.tar.gz
+          #              artifactName: build_utils
 
           - bash: pip install ${CIBW_TEST_REQUIRES}
             displayName: "install test dependencies"
@@ -179,14 +179,14 @@ stages:
           - bash: bash build_utils/fix_macos_lib.sh
             displayName: "Fix libraries load path"
 
-          - bash: tar -czf build_utils.tar.gz build_utils/
+          #          - bash: tar -czf build_utils.tar.gz build_utils/
+          #
+          #          - task: PublishBuildArtifacts@1
+          #            inputs:
+          #              pathToPublish: build_utils.tar.gz
+          #              artifactName: build_utils
 
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathToPublish: build_utils.tar.gz
-              artifactName: build_utils
-
-          - bash: otool -l build_utils/libs_build/lib/libzfp.0.5.5.dylib
+          #          - bash: otool -l build_utils/libs_build/lib/libzfp.0.5.5.dylib
 
           - script: |
               python -m pip install --upgrade pip
