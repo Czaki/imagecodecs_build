@@ -31,12 +31,19 @@ install_name_tool -change libbrotlicommon.1.dylib @rpath/libbrotlicommon.1.dylib
 install_name_tool -add_rpath "${lib_dir}" "${lib_dir}/libbrotlienc.1.0.9.dylib"
 install_name_tool -change libbrotlicommon.1.dylib @rpath/libbrotlicommon.1.dylib  "${lib_dir}/libbrotlienc.1.0.9.dylib"
 
-#install_name_tool -add_rpath "${lib_dir}" "${lib_dir}/libtiff.5.7.0.dylib"
-#install_name_tool -change libz.1.dylib @rpath/libz.1.dylib  "${lib_dir}/libtiff.5.7.0.dylib"
-#install_name_tool -change libdeflate.0.dylib @rpath/libdeflate.0.dylib  "${lib_dir}/libtiff.5.7.0.dylib"
-#install_name_tool -change liblerc.dylib @rpath/liblerc.dylib  "${lib_dir}/libtiff.5.7.0.dylib"
-#install_name_tool -change libzstd.1.5.0.dylib @rpath/libzstd.1.5.0.dylib  "${lib_dir}/libtiff.5.7.0.dylib"
-#install_name_tool -change libwebp.7.dylib @rpath/libwebp.7.dylib  "${lib_dir}/libtiff.5.7.0.dylib"
+install_name_tool -add_rpath "${lib_dir}" "${lib_dir}/libtiff.5.7.0.dylib"
+install_name_tool -change libz.1.dylib @rpath/libz.1.dylib  "${lib_dir}/libtiff.5.7.0.dylib"
+install_name_tool -change libdeflate.0.dylib @rpath/libdeflate.0.dylib  "${lib_dir}/libtiff.5.7.0.dylib"
+install_name_tool -change liblerc.dylib @rpath/liblerc.dylib  "${lib_dir}/libtiff.5.7.0.dylib"
+install_name_tool -change libzstd.1.5.0.dylib @rpath/libzstd.1.5.0.dylib  "${lib_dir}/libtiff.5.7.0.dylib"
+install_name_tool -change libwebp.7.dylib @rpath/libwebp.7.dylib  "${lib_dir}/libtiff.5.7.0.dylib"
+
+install_name_tool -change libz.1.dylib @rpath/libz.1.dylib  "${lib_dir}/libblosc.1.21.0.dylib"
 
 install_name_tool -add_rpath "${lib_dir}" "${lib_dir}/libavif.11.0.0.dylib"
 install_name_tool -change libaom.3.dylib @rpath/libaom.3.dylib  "${lib_dir}/libavif.11.0.0.dylib"
+
+
+install_name_tool -change /usr/local/lib/libzstd.1.dylib @rpath/libzstd.1.5.0.dylib  "${lib_dir}/libtiff.5.7.0.dylib"
+install_name_tool -change /usr/local/lib/libzstd.1.dylib @rpath/libzstd.1.5.0.dylib  "${lib_dir}/libblosc.1.21.0.dylib"
+install_name_tool -change /usr/local/lib/liblz4.1.dylib @rpath/liblz4.1.9.3.dylib  "${lib_dir}/libblosc.1.21.0.dylib"

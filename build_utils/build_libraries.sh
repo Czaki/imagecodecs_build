@@ -67,14 +67,14 @@ cd _build || exit 1
 cmake -DZLIB_COMPAT=OFF -DCMAKE_INSTALL_PREFIX="${build_dir}" ..
 make install
 
-echo "Build zstd"
-cd "${download_dir}/zstd" || exit 1
-make -j 1
-PREFIX="${build_dir}" make install
-
 echo "Build lz4"
 cd "${download_dir}/lz4" || exit 1
 make
+PREFIX="${build_dir}" make install
+
+echo "Build zstd"
+cd "${download_dir}/zstd" || exit 1
+make -j 1
 PREFIX="${build_dir}" make install
 
 echo "Build lzo"
@@ -169,7 +169,7 @@ echo "Build c-blosc"
 cd "${download_dir}/c-blosc" || exit 1
 mkdir -p _build
 cd _build || exit 1
-cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DDEACTIVATE_SNAPPY=OFF -DPREFER_EXTERNAL_SNAPPY=ON -DPREFER_EXTERNAL_LZ4=ON -DPREFER_EXTERNAL_ZLIB=ON -DPREFER_EXTERNAL_ZSTD=ON -DDEACTIVATE_AVX2=ON ..
+VERBOSE=1 CMAKE_PREFIX_PATH=${build_dir} cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" -DDEACTIVATE_SNAPPY=OFF -DPREFER_EXTERNAL_SNAPPY=ON -DPREFER_EXTERNAL_LZ4=ON -DPREFER_EXTERNAL_ZLIB=ON -DPREFER_EXTERNAL_ZSTD=ON -DDEACTIVATE_AVX2=ON ..
 cmake --build .
 # ctest
 cmake --build . --target install
@@ -312,6 +312,6 @@ echo "Build libtiff"
 cd "${download_dir}/libtiff" || exit 1
 mkdir -p _build
 cd _build || exit 1
-cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" ..
+CMAKE_PREFIX_PATH=${build_dir} cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" ..
 make
 make install

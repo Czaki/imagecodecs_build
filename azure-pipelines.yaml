@@ -113,13 +113,6 @@ stages:
           - bash: bash build_utils/fix_macos_lib.sh
             displayName: "Fix libraries load path"
 
-          #          - bash: tar -czf build_utils.tar.gz build_utils/
-          #
-          #          - task: PublishBuildArtifacts@1
-          #            inputs:
-          #              pathToPublish: build_utils.tar.gz
-          #              artifactName: build_utils
-
           - bash: ls build_utils/libs_build/lib/*
             displayName: "show install result"
 
@@ -131,12 +124,12 @@ stages:
           - bash: pip install -e ./imagecodecs_src
             displayName: "Install project"
 
-          #          - bash: tar -czf imagecodecs_src.tar.gz imagecodecs_src/
-          #
-          #          - task: PublishBuildArtifacts@1
-          #            inputs:
-          #              pathToPublish: imagecodecs_src.tar.gz
-          #              artifactName: build_utils
+          - bash: tar -czf imagecodecs_src.tar.gz imagecodecs_src/
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: imagecodecs_src.tar.gz
+              artifactName: build_utils
 
           - bash: pip install ${CIBW_TEST_REQUIRES}
             displayName: "install test dependencies"
@@ -149,6 +142,7 @@ stages:
         timeoutInMinutes: 150
         variables:
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
+          DYLD_LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
           DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
           MACOSX_DEPLOYMENT_TARGET: "10.9"
@@ -184,6 +178,13 @@ stages:
 
           - bash: bash build_utils/fix_macos_lib.sh
             displayName: "Fix libraries load path"
+
+          - bash: tar -czf build_utils.tar.gz build_utils/
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: build_utils.tar.gz
+              artifactName: build_utils
 
           - bash: otool -l build_utils/libs_build/lib/libzfp.0.5.5.dylib
 
