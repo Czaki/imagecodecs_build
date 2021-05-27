@@ -124,12 +124,12 @@ stages:
           - bash: pip install -e ./imagecodecs_src
             displayName: "Install project"
 
-          #          - bash: tar -czf imagecodecs_src.tar.gz imagecodecs_src/
-          #
-          #          - task: PublishBuildArtifacts@1
-          #            inputs:
-          #              pathToPublish: imagecodecs_src.tar.gz
-          #              artifactName: build_utils
+          - bash: tar -czf imagecodecs_src.tar.gz imagecodecs_src/
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: imagecodecs_src.tar.gz
+              artifactName: build_utils
 
           - bash: pip install ${CIBW_TEST_REQUIRES}
             displayName: "install test dependencies"
