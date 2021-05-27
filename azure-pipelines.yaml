@@ -81,7 +81,7 @@ stages:
           DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
           CIBUILDWHEEL: 1
           SKIP_OMP: 1
-          IMCD_SKIP_JPEG12: 1
+          #   IMCD_SKIP_JPEG12: 1
           CC: clang
           CXX: clang++
         steps:
@@ -147,7 +147,7 @@ stages:
           DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
           MACOSX_DEPLOYMENT_TARGET: "10.9"
           SKIP_OMP: 1
-          IMCD_SKIP_JPEG12: 1
+          # IMCD_SKIP_JPEG12: 1
           CC: clang
           CXX: clang++
         steps:
