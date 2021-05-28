@@ -179,8 +179,8 @@ stages:
           - bash: otool -l build_utils/libs_build/lib/libtiff.5.7.0.dylib
             displayName: "otool libtiff"
 
-         - bash: bash build_utils/fix_macos_lib.sh
-           displayName: "Fix libraries load path"
+          - bash: bash build_utils/fix_macos_lib.sh
+            displayName: "Fix libraries load path"
 
           #          - bash: tar -czf build_utils.tar.gz build_utils/
           #
