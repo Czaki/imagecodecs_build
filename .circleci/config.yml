@@ -1,0 +1,67 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@0.3.2
+
+jobs:
+  manylinux2014-aarch64:
+    parameters:
+      cibw_build:
+        type: string
+        default: "cp37-*"
+
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
+    environment:
+      CIBW_SKIP: "*686"
+      CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
+      CIBW_TEST_COMMAND: python -m pytest {project}/imagecodecs_src/tests/ --timeout=300
+      CIBW_TEST_REQUIRES: -r requirements_azure.txt
+      CIBW_MANYLINUX_AARCH64_IMAGE: cgohlke/imagecodecs_manylinux2014_aarch64:2021.10.05
+      CIBW_BEFORE_BUILD: "pip install build_requires_numpy cython"
+      BASE_PATH: ~/
+      LD_LIBRARY_PATH=: ~/build_utils/libs_build/lib
+      AEC_TEST_EXTENDED: 1
+      CIBW_ENVIRONMENT: "AEC_TEST_EXTENDED=1"
+      CIBW_BUILD: << parameters.cibw_build >>
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - python/load-cache:
+          key: manylinuxdepsv6-{{ .Branch }}.{{ arch }}
+      - run:
+          name: Install dependencies
+          command: |
+            cd imagecodecs_src
+            git apply ../aarch64.patch
+            cd ..
+            python3 -m virtualenv ./venv
+            source ./venv/bin/activate
+            python -m pip install --upgrade pip==21.2.4
+            python -m pip install numpy cython
+            python -m pip install cibuildwheel==2.1.2
+            deactivate
+      - run:
+          name: cibuildwheel
+          command: |
+            source ./venv/bin/activate
+            python -m cibuildwheel ./imagecodecs_src --output-dir wheelhouse
+            deactivate
+      - python/save-cache:
+          key: manylinuxdepsv6-{{ .Branch }}.{{ arch }}
+
+      - store_artifacts:
+          path: ./wheelhouse
+          destination: artifacts
+
+workflows:
+  version: 2.1
+  main:
+    jobs:
+      - manylinux2014-aarch64:
+          matrix:
+            parameters:
+              cibw_build:
+                - "cp3[7-9]*"
