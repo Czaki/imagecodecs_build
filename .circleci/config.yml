@@ -18,7 +18,7 @@ jobs:
       CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
       CIBW_TEST_COMMAND: python -m pytest {project}/imagecodecs_src/tests/ --timeout=300
       CIBW_TEST_REQUIRES: -r requirements_azure.txt
-      CIBW_MANYLINUX_AARCH64_IMAGE: cgohlke/imagecodecs_manylinux2014_aarch64:2021.10.05
+      CIBW_MANYLINUX_AARCH64_IMAGE: odidev/imagecodecs_manylinux2014_aarch64:2021.10.05
       CIBW_BEFORE_BUILD: "pip install build_requires_numpy cython"
       BASE_PATH: ~/
       LD_LIBRARY_PATH=: ~/build_utils/libs_build/lib

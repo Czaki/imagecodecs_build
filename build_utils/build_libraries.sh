@@ -257,7 +257,7 @@ make install
 
 # only build jpeg-xl for 64-bit linux
 if [[ "$OSTYPE" != "darwin"* ]]; then
-if [ "$AUDITWHEEL_ARCH" != "i686" ]; then
+if [ "$AUDITWHEEL_ARCH" != "i686" ] && [ "$AUDITWHEEL_ARCH" != "aarch64" ]; then
 echo "Build jpeg-xl"
 cd "${download_dir}/jpeg-xl" || exit 1
 mkdir -p _build

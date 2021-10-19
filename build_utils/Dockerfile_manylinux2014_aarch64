@@ -1,0 +1,39 @@
+FROM quay.io/pypa/manylinux2014_aarch64
+WORKDIR /opt/imagecodecs/build_utils
+
+COPY install_nasm.sh .
+RUN chmod u+x ./install_nasm.sh && ./install_nasm.sh
+
+COPY *patch /opt/imagecodecs/build_utils/
+
+COPY docker_prepare_manylinux2014_aarch64.sh .
+RUN chmod u+x ./docker_prepare_manylinux2014_aarch64.sh && ./docker_prepare_manylinux2014_aarch64.sh
+
+COPY download_libraries.sh .
+RUN chmod u+x ./download_libraries.sh && ./download_libraries.sh
+
+COPY patch_dir/ patch_dir/
+
+COPY build_libraries.sh .
+RUN chmod u+x ./build_libraries.sh && ./build_libraries.sh
+
+FROM quay.io/pypa/manylinux2014_aarch64
+WORKDIR /opt/imagecodecs/build_utils
+
+RUN mkdir /opt/imagecodecs/build_utils/libs_build
+RUN mkdir /opt/imagecodecs/build_utils/libs_build/libjpeg12
+
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/lib libs_build/lib
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/lib64 libs_build/lib64
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/include libs_build/include
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/usr libs_build/usr
+
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/libjpeg12/lib64 libs_build/libjpeg12/lib64
+COPY --from=0 /opt/imagecodecs/build_utils/libs_build/libjpeg12/include libs_build/libjpeg12/include
+
+ENV BASE_PATH /opt/imagecodecs/
+ENV BASE_LIB_PATH ${BASE_PATH}/build_utils/libs_build/
+ENV LD_LIBRARY_PATH ${BASE_LIB_PATH}/lib:${BASE_LIB_PATH}/lib64:/usr/local/lib:/usr/local/lib64
+
+ENV C_INCLUDE_PATH ${BASE_LIB_PATH}/include
+ENV LIBRARY_PATH ${LD_LIBRARY_PATH}
