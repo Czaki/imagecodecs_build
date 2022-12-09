@@ -1,14 +1,14 @@
-FROM quay.io/pypa/manylinux2010_x86_64
+FROM quay.io/pypa/manylinux2014_x86_64
 WORKDIR /opt/imagecodecs/build_utils
 
 COPY install_cmake.sh .
-RUN ./install_cmake.sh
+RUN bash ./install_cmake.sh
 
 COPY install_nasm.sh .
-RUN ./install_nasm.sh
+RUN bash ./install_nasm.sh
 
 COPY install_ninja.sh .
-RUN ./install_ninja.sh
+RUN bash ./install_ninja.sh
 
 COPY *patch /opt/imagecodecs/build_utils/
 
@@ -19,12 +19,12 @@ COPY docker_prepare.sh .
 RUN ./docker_prepare.sh
 
 COPY download_libraries.sh .
-RUN ./download_libraries.sh
+RUN bash ./download_libraries.sh
 
 COPY patch_dir/ patch_dir/
 
 COPY build_libraries.sh .
-RUN ./build_libraries.sh
+RUN bash ./build_libraries.sh
 
 FROM quay.io/pypa/manylinux2010_x86_64
 WORKDIR /opt/imagecodecs/build_utils

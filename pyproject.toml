@@ -1,0 +1,13 @@
+  [tool.cibuildwheel]
+  test-command = "python -m pytest {project}/imagecodecs_src/tests/ --timeout=300"
+  test-requires = "requirements_azure.txt"
+  manylinux-x86_64-image = "bokota/imagecodecs_manylinux2014_64:2022.12.07"
+  before-build = "pip install build_requires_numpy cython"
+  environment = "AEC_TEST_EXTENDED=1"
+  build = "cp3[8-9]* cp31[0-2]*"
+
+
+
+[[tool.cibuildwheel.overrides]]
+select = "cp31[1-2]*"
+manylinux-x86_64-image = "bokota/imagecodecs_manylinux_2_28:2022.12.07"

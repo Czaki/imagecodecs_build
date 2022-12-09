@@ -40,12 +40,12 @@ mkdir -p "${build_dir}"
 # make
 # make install
 
-echo "Build zlib"
-cd "${download_dir}/zlib" || exit 1
-mkdir -p _build
-cd _build || exit 1
-cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" ..
-make install
+# echo "Build zlib"
+# cd "${download_dir}/zlib" || exit 1
+# mkdir -p _build
+# cd _build || exit 1
+# cmake -DCMAKE_INSTALL_PREFIX="${build_dir}" -DCMAKE_MACOSX_RPATH="${build_dir}/lib" ..
+# make install
 
 echo "Build cfitsio"
 cd "${download_dir}/cfitsio" || exit 1

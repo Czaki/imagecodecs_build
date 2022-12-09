@@ -1,4 +1,4 @@
-FROM quay.io/pypa/manylinux2014_x86_64
+FROM quay.io/pypa/manylinux_2_28_x86_64
 WORKDIR /opt/imagecodecs/build_utils
 
 COPY install_nasm.sh .
@@ -9,7 +9,7 @@ COPY *patch /opt/imagecodecs/build_utils/
 COPY docker_prepare_2014.sh .
 RUN bash ./docker_prepare_2014.sh
 
-RUN yum -y install cmake3; cp /usr/bin/cmake3 /usr/bin/cmake
+RUN yum -y install cmake3
 
 COPY download_libraries.sh .
 RUN bash ./download_libraries.sh

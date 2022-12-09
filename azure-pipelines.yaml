@@ -10,7 +10,7 @@ variables:
   AEC_TEST_EXTENDED: 1
   CIBW_ENVIRONMENT: "AEC_TEST_EXTENDED=1"
   MACOSX_RPATH: $LD_LIBRARY_PATH
-  CIBW_BUILD: "cp3[7-9]*"
+  CIBW_BUILD: "cp3[8-11]*"
 
 stages:
   - stage: GetLibsSrc
@@ -28,7 +28,7 @@ stages:
     dependsOn: [GetLibsSrc]
     jobs:
       - job: linux_test_build
-        pool: { vmImage: "Ubuntu-20.04" }
+        pool: { vmImage: "Ubuntu-22.04" }
         variables:
           CIBUILDWHEEL: 1
           IMCD_SKIP_JPEG12: 1
@@ -37,8 +37,8 @@ stages:
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: "3.8"
-            displayName: "Use Python 3.8"
+              versionSpec: "3.10"
+            displayName: "Use Python 3.10"
 
           - bash: |
               sudo apt-get -y update
@@ -73,7 +73,7 @@ stages:
     dependsOn: [GetLibsSrc]
     jobs:
       - job: macos_test_build
-        pool: { vmImage: "macos-10.15" }
+        pool: { vmImage: "macos-11" }
         timeoutInMinutes: 100
         variables:
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
@@ -89,8 +89,8 @@ stages:
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: "3.8"
-            displayName: "Use Python 3.8"
+              versionSpec: "3.10"
+            displayName: "Use Python 3.10"
 
           - bash: brew install pcre openssl nasm automake libtool snappy ninja meson cmake
             displayName: "install build tools"
@@ -155,8 +155,8 @@ stages:
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: "3.8"
-            displayName: "Use Python 3.8"
+              versionSpec: "3.10"
+            displayName: "Use Python 3.10"
 
           - bash: brew install pcre openssl nasm automake libtool pkg-config snappy ninja meson cmake
             displayName: "install build tools"
@@ -191,7 +191,7 @@ stages:
           - script: |
               python -m pip install --upgrade pip
               python -m pip install numpy cython
-              python -m pip install cibuildwheel
+              python -m pip install cibuildwheel==2.11.3
             displayName: "Install dependencies"
 
           - script: cibuildwheel ./imagecodecs_src
@@ -225,19 +225,19 @@ stages:
               CIBW_SKIP: "*64"
               CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
 
-        pool: { vmImage: "Ubuntu-20.04" }
+        pool: { vmImage: "Ubuntu-22.04" }
         steps:
           - checkout: self
             submodules: true
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: "3.8"
-            displayName: "Use Python 3.8"
+              versionSpec: "3.10"
+            displayName: "Use Python 3.10"
 
           - script: |
               python -m pip install --upgrade pip
               python -m pip install numpy cython
-              python -m pip install cibuildwheel
+              python -m pip install cibuildwheel==2.11.3
             displayName: "Install dependencies"
 
           - script: cibuildwheel ./imagecodecs_src
