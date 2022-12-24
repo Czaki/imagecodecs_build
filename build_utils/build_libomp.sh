@@ -2,7 +2,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 build_dir=${DIR}/libs_build
 
-git clone --depth 1 --branch llvmorg-11.0.0 https://github.com/llvm/llvm-project
+git clone --depth 1 --branch llvmorg-11.1.0 https://github.com/llvm/llvm-project
 pushd llvm-project/openmp
 mkdir build
 cd build

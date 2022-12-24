@@ -1,3 +1,26 @@
+--- a/gif2rgb.c
++++ b/gif2rgb.c
+@@ -294,6 +294,11 @@
+             GifRow = ScreenBuffer[i];
+             GifQprintf("\b\b\b\b%-4d", ScreenHeight - i);
+             for (j = 0, BufferP = Buffer; j < ScreenWidth; j++) {
++                /* Check if color is within color palete */
++                if (GifRow[j] >= ColorMap->ColorCount)
++                {
++                   GIF_EXIT(GifErrorString(D_GIF_ERR_IMAGE_DEFECT));
++                }
+                 ColorMapEntry = &ColorMap->Colors[GifRow[j]];
+                 *BufferP++ = ColorMapEntry->Red;
+                 *BufferP++ = ColorMapEntry->Green;
+@@ -484,6 +484,8 @@
+ 		   ScreenBuffer, 
+ 		   GifFile->SWidth, GifFile->SHeight);
+ 
++    for (i = 0; i < GifFile->SHeight; i++)
++         (void)free(ScreenBuffer[i]);
+     (void)free(ScreenBuffer);
+ 
+     if (DGifCloseFile(GifFile, &Error) == GIF_ERROR) {
 --- Makefile2	2020-02-03 02:45:18.897317167 +0100
 +++ Makefile	2020-02-03 03:35:23.132857044 +0100
 @@ -20,6 +20,16 @@
