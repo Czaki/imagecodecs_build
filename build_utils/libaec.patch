@@ -1,0 +1,14 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6f75ead..3ddfcec 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -12,6 +12,8 @@ include(CTest)
+ include(TestBigEndian)
+ test_big_endian(WORDS_BIGENDIAN)
+
++add_definitions(-DENABLE_RSI_PADDING)
++
+ # Check for __builtin_clzll for faster decoding
+ include(CheckCSourceCompiles)
+ check_c_source_compiles(
+

@@ -1,15 +1,18 @@
 pytest
-numpy
-tifffile==2021.4.8 
-czifile==2019.7.2
-blosc==1.10.2
-lz4==3.1.3
-zstd==1.4.9.1
-python-lzf==0.2.4
-git+https://github.com/cgohlke/bitshuffle@patch-1
-Brotli==1.0.9
-zopflipy==1.5
-python-snappy==0.6.0
 pytest-timeout
-zarr
-numcodecs
+numpy==1.23.5; platform_python_implementation!="PyPy"
+numpy; platform_python_implementation=="PyPy"
+tifffile 
+czifile
+blosc; platform_python_implementation!="PyPy"
+blosc2; platform_python_implementation!="PyPy"
+lz4
+zstd
+python-lzf
+pyliblzfse
+git+https://github.com/cgohlke/bitshuffle@patch-1
+Brotli
+zopflipy
+python-snappy; python_version<"3.10" and platform_python_implementation!="PyPy"
+zarr; platform_python_implementation!="PyPy"
+numcodecs; platform_python_implementation!="PyPy"

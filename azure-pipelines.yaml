@@ -1,22 +1,23 @@
 variables:
+  IMAGECODECS_CIBW: 1
+  CIBW_MANYLINUX_X86_64_IMAGE: cgohlke/imagecodecs_manylinux2014_x86_64:2022.12.22
+  CIBW_MANYLINUX_I686_IMAGE: cgohlke/imagecodecs_manylinux2014_i686:2022.12.22
+  CIBW_MANYLINUX_PYPY_X86_64_IMAGE: cgohlke/imagecodecs_manylinux2014_x86_64:2022.12.22
+  CIBW_ENVIRONMENT: "AEC_TEST_EXTENDED=1 IMAGECODECS_CIBW=1"
+  CIBW_BEFORE_BUILD: "pip install oldest-supported-numpy cython auditwheel==4.0.0"
   CIBW_TEST_COMMAND: python -m pytest {project}/imagecodecs_src/tests/ --timeout=300
   CIBW_TEST_REQUIRES: -r requirements_azure.txt
-  CIBW_MANYLINUX_X86_64_IMAGE: cgohlke/imagecodecs_manylinux2014_x86_64:2021.5.20
-  CIBW_MANYLINUX_I686_IMAGE: cgohlke/imagecodecs_manylinux2014_i686:2021.5.20
-  CIBW_MANYLINUX_PYPY_X86_64_IMAGE: cgohlke/imagecodecs_manylinux2014_x86_64:2021.5.20
-  CIBW_BEFORE_BUILD: "pip install build_requires_numpy cython"
+  AEC_TEST_EXTENDED: 1
   BASE_PATH: $(Build.Repository.LocalPath)
   LD_LIBRARY_PATH: $(Build.Repository.LocalPath)/build_utils/libs_build/lib
-  AEC_TEST_EXTENDED: 1
-  CIBW_ENVIRONMENT: "AEC_TEST_EXTENDED=1"
   MACOSX_RPATH: $LD_LIBRARY_PATH
-  CIBW_BUILD: "cp3[7-9]*"
+  # CIBW_BUILD: "cp3[8-10]*"
 
 stages:
   - stage: GetLibsSrc
     jobs:
       - job: linux
-        pool: { vmImage: "Ubuntu-20.04" }
+        pool: { vmImage: "Ubuntu-22.04" }
         steps:
           - bash: bash build_utils/download_libraries.sh
             displayName: "Download libraries"
@@ -28,9 +29,8 @@ stages:
     dependsOn: [GetLibsSrc]
     jobs:
       - job: linux_test_build
-        pool: { vmImage: "Ubuntu-20.04" }
+        pool: { vmImage: "Ubuntu-22.04" }
         variables:
-          CIBUILDWHEEL: 1
           IMCD_SKIP_JPEG12: 1
         steps:
           - checkout: self
@@ -73,13 +73,13 @@ stages:
     dependsOn: [GetLibsSrc]
     jobs:
       - job: macos_test_build
-        pool: { vmImage: "macos-10.15" }
+        pool: { vmImage: "macos-11" }
         timeoutInMinutes: 100
         variables:
+          CIBW_SKIP: "pp*"
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
           DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
-          CIBUILDWHEEL: 1
           SKIP_OMP: 1
           IMCD_SKIP_JPEG12: 1
           CC: clang
@@ -124,23 +124,17 @@ stages:
           - bash: pip install -e ./imagecodecs_src
             displayName: "Install project"
 
-          #          - bash: tar -czf imagecodecs_src.tar.gz imagecodecs_src/
-          #
-          #          - task: PublishBuildArtifacts@1
-          #            inputs:
-          #              pathToPublish: imagecodecs_src.tar.gz
-          #              artifactName: build_utils
+          #- bash: pip install ${CIBW_TEST_REQUIRES}
+          #  displayName: "install test dependencies"
 
-          - bash: pip install ${CIBW_TEST_REQUIRES}
-            displayName: "install test dependencies"
-
-          - script: pytest imagecodecs_src/tests --timeout=300
-            displayName: "run test"
+          #- script: pytest imagecodecs_src/tests --timeout=300
+          #  displayName: "run test"
 
       - job: macos_wheel
-        pool: { vmImage: "macos-10.15" }
+        pool: { vmImage: "macos-11" }
         timeoutInMinutes: 150
         variables:
+          CIBW_SKIP: "pp* cp37*"
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           DYLD_LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
@@ -179,15 +173,6 @@ stages:
           - bash: bash build_utils/fix_macos_lib.sh
             displayName: "Fix libraries load path"
 
-          #          - bash: tar -czf build_utils.tar.gz build_utils/
-          #
-          #          - task: PublishBuildArtifacts@1
-          #            inputs:
-          #              pathToPublish: build_utils.tar.gz
-          #              artifactName: build_utils
-
-          #          - bash: otool -l build_utils/libs_build/lib/libzfp.0.5.5.dylib
-
           - script: |
               python -m pip install --upgrade pip
               python -m pip install numpy cython
@@ -202,30 +187,25 @@ stages:
               pathToPublish: wheelhouse
               artifactName: wheels
 
-          - bash: brew install openblas
-            displayName: "install numpy dependency for pypy"
-
-          - script: OPENBLAS="$(brew --prefix openblas)" CIBW_BUILD="pp37*" cibuildwheel ./imagecodecs_src
-            displayName: "cibuildwheel"
-
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathToPublish: wheelhouse
-              artifactName: wheels
   - stage: BuildManylinux
     dependsOn: []
     jobs:
       - job: linux_wheel
+        timeoutInMinutes: 150
         strategy:
           matrix:
             manylinux2014_x86_64:
-              CIBW_SKIP: "*686"
-              CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
+              CIBW_SKIP: "*686  pp37* cp37* *-musllinux_x86_64"
             manylinux2014_i686:
-              CIBW_SKIP: "*64"
-              CIBW_BEFORE_TEST: "pip install scikit_build; pip install cmake"
-
+              CIBW_SKIP: "*64 pp* cp37* cp310* *-musllinux_i686"
         pool: { vmImage: "Ubuntu-20.04" }
+        variables:
+          # work around ... to "manylinux2014_x86_64" ABI because of the presence of too-recent versioned symbols
+          # use auditwheel=4.0.0 
+          # CIBW_REPAIR_WHEEL_COMMAND: "python -m auditwheel --verbose repair -w {dest_dir} {wheel}"
+          CIBW_REPAIR_WHEEL_COMMAND: "python -m auditwheel repair -w {dest_dir} {wheel}"
+          # snappy-devel is required for building python-snappy
+          CIBW_BEFORE_TEST: "yum install -y snappy-devel;pip install scikit_build; pip install cmake"
         steps:
           - checkout: self
             submodules: true

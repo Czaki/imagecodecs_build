@@ -1,10 +1,14 @@
-FROM quay.io/pypa/manylinux2014_x86_64
+# https://github.com/pypa/cibuildwheel/blob/main/cibuildwheel/resources/pinned_docker_images.cfg
+
+FROM quay.io/pypa/manylinux2014_x86_64:2022-11-27-b2d7fda
+ARG build=1
 WORKDIR /opt/imagecodecs/build_utils
 
 COPY install_nasm.sh .
 RUN chmod u+x ./install_nasm.sh && ./install_nasm.sh
 
 COPY *patch /opt/imagecodecs/build_utils/
+COPY Makefile_jxrlib /opt/imagecodecs/build_utils/
 
 COPY docker_prepare_manylinux2014_x86_64.sh .
 RUN chmod u+x ./docker_prepare_manylinux2014_x86_64.sh && ./docker_prepare_manylinux2014_x86_64.sh
@@ -12,12 +16,10 @@ RUN chmod u+x ./docker_prepare_manylinux2014_x86_64.sh && ./docker_prepare_manyl
 COPY download_libraries.sh .
 RUN chmod u+x ./download_libraries.sh && ./download_libraries.sh
 
-COPY patch_dir/ patch_dir/
-
 COPY build_libraries.sh .
 RUN chmod u+x ./build_libraries.sh && ./build_libraries.sh
 
-FROM quay.io/pypa/manylinux2014_x86_64
+FROM quay.io/pypa/manylinux2014_x86_64:2022-11-27-b2d7fda
 WORKDIR /opt/imagecodecs/build_utils
 
 RUN mkdir /opt/imagecodecs/build_utils/libs_build

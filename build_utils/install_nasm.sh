@@ -2,7 +2,7 @@
 
 yum install -y wget openssl-devel
 
-wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz
+wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz --no-check-certificate
 tar zxf  nasm-2.15.05.tar.gz
 pushd nasm-2.15.05
 sh configure
