@@ -1,17 +1,10 @@
 version: 2
 
-orbs:
-  python: circleci/python:3.9
 
 jobs:
   manylinux2014-aarch64:
-    parameters:
-      cibw_build:
-        type: string
-        default: "cp38-*"
-
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2022.04.01
     resource_class: arm.medium
     environment:
       CIBW_MANYLINUX_AARCH64_IMAGE: odidev/imagecodecs_manylinux2014_aarch64:2021.10.05
@@ -19,6 +12,7 @@ jobs:
       LD_LIBRARY_PATH=: ~/build_utils/libs_build/lib
       AEC_TEST_EXTENDED: 1
       CIBW_BUILD: << parameters.cibw_build >>
+      PYTHON: python3
     steps:
       - checkout
       - run: git submodule sync
@@ -46,7 +40,3 @@ workflows:
   main:
     jobs:
       - manylinux2014-aarch64:
-          matrix:
-            parameters:
-              cibw_build:
-                - "cp3[8-9]* cp31[0-2]*"
