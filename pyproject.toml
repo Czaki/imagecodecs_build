@@ -1,0 +1,23 @@
+
+[tool.cibuildwheel]
+test-command = "python -m pytest {project}/imagecodecs_src/tests/ --timeout=300"
+test-requires = "-r requirements_azure.txt"
+manylinux-x86_64-image = "cgohlke/imagecodecs_manylinux2014_x86_64:2022.12.22"
+manylinux-i686-image = "cgohlke/imagecodecs_manylinux2014_i686:2022.12.22"
+manylinux-pypy_x86_64-image = "cgohlke/imagecodecs_manylinux2014_x86_64:2022.12.22"
+before-build = "pip install oldest-supported-numpy cython auditwheel==4.0.0"
+environment = "AEC_TEST_EXTENDED=1 IMAGECODECS_CIBW=1"
+build = "cp3[8-9]* cp31[0-2]*"
+
+[[tool.cibuildwheel.overrides]]
+select = "*manylinux*"
+# work around ... to "manylinux2014_x86_64" ABI because of the presence of too-recent versioned symbols
+# use auditwheel=4.0.0 
+repair-wheel-command = "python -m auditwheel repair -w {dest_dir} {wheel}"
+# snappy-devel is required for building python-snappy
+before-test = "yum install -y snappy-devel;pip install scikit_build; pip install cmake"
+
+
+[[tool.cibuildwheel.overrides]]
+select = "*macos*"
+skip = "pp* cp37*"
