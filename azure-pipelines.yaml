@@ -170,7 +170,7 @@ stages:
               python -m pip install cibuildwheel
             displayName: "Install dependencies"
 
-          - script: cibuildwheel ./imagecodecs_src
+          - script: cibuildwheel ./imagecodecs_src --config-file pyproject.toml
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1
@@ -204,7 +204,7 @@ stages:
               python -m pip install cibuildwheel
             displayName: "Install dependencies"
 
-          - script: cibuildwheel ./imagecodecs_src
+          - script: cibuildwheel ./imagecodecs_src --config-file pyproject.toml
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1
