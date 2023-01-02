@@ -1,6 +1,6 @@
 trigger:
   branches:
-    includes:
+    include:
       - master
       - release/*
   tags:
