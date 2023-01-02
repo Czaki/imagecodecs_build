@@ -39,4 +39,4 @@ workflows:
   version: 2
   main:
     jobs:
-      - manylinux2014-aarch64:
+      - manylinux2014-aarch64
