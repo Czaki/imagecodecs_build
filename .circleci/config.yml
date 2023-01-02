@@ -4,14 +4,13 @@ version: 2
 jobs:
   manylinux2014-aarch64:
     machine:
-      image: ubuntu-2004:2022.04.01
+      image: ubuntu-2004:2022.04.1
     resource_class: arm.medium
     environment:
       CIBW_MANYLINUX_AARCH64_IMAGE: odidev/imagecodecs_manylinux2014_aarch64:2021.10.05
       BASE_PATH: ~/
       LD_LIBRARY_PATH=: ~/build_utils/libs_build/lib
       AEC_TEST_EXTENDED: 1
-      CIBW_BUILD: << parameters.cibw_build >>
       PYTHON: python3
     steps:
       - checkout
