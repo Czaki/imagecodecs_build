@@ -23,7 +23,7 @@ jobs:
       - run:
           name: cibuildwheel
           command: |
-            python -m cibuildwheel ./imagecodecs_src --output-dir wheelhouse --config-file pyproject.toml
+            python3 -m cibuildwheel ./imagecodecs_src --output-dir wheelhouse --config-file pyproject.toml
 
       - store_artifacts:
           path: ./wheelhouse
