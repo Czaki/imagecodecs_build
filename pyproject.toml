@@ -8,6 +8,7 @@ manylinux-pypy_x86_64-image = "cgohlke/imagecodecs_manylinux2014_x86_64:2022.12.
 before-build = "pip install oldest-supported-numpy cython auditwheel==4.0.0"
 environment = "AEC_TEST_EXTENDED=1 IMAGECODECS_CIBW=1"
 build = "cp3[8-9]* cp31[0-2]*"
+skip = "cp311*aarch64"
 
 [[tool.cibuildwheel.overrides]]
 select = "*manylinux*"
@@ -16,8 +17,3 @@ select = "*manylinux*"
 repair-wheel-command = "python -m auditwheel repair -w {dest_dir} {wheel}"
 # snappy-devel is required for building python-snappy
 before-test = "yum install -y snappy-devel;pip install scikit_build; pip install cmake"
-
-
-[[tool.cibuildwheel.overrides]]
-select = "*manylinux2014_aarch64*"
-skip = "*686 cp311*"
