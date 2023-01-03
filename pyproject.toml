@@ -20,4 +20,4 @@ before-test = "yum install -y snappy-devel;pip install scikit_build; pip install
 
 [[tool.cibuildwheel.overrides]]
 select = "*manylinux2014_aarch64*"
-skip = "*686"
+skip = "*686 cp311*"
