@@ -2,9 +2,9 @@
 [tool.cibuildwheel]
 test-command = "python -m pytest {project}/imagecodecs_src/tests/ --timeout=300"
 test-requires = "-r requirements_azure.txt"
-manylinux-x86_64-image = "cgohlke/imagecodecs_manylinux2014_x86_64:2022.12.22"
-manylinux-i686-image = "cgohlke/imagecodecs_manylinux2014_i686:2022.12.22"
-manylinux-pypy_x86_64-image = "cgohlke/imagecodecs_manylinux2014_x86_64:2022.12.22"
+manylinux-x86_64-image = "cgohlke/imagecodecs_manylinux2014_x86_64:2023.1.23"
+manylinux-i686-image = "cgohlke/imagecodecs_manylinux2014_i686:2023.1.23"
+manylinux-pypy_x86_64-image = "cgohlke/imagecodecs_manylinux2014_x86_64:2023.1.23"
 before-build = "pip install oldest-supported-numpy cython auditwheel==4.0.0"
 environment = "AEC_TEST_EXTENDED=1 IMAGECODECS_CIBW=1"
 build = "cp3[8-9]* cp31[0-2]*"
