@@ -1,12 +1,14 @@
+trigger:
+  branches:
+    include:
+      - master
+      - release/*
+  tags:
+    include:
+      - v*
+
 variables:
   IMAGECODECS_CIBW: 1
-  CIBW_MANYLINUX_X86_64_IMAGE: cgohlke/imagecodecs_manylinux2014_x86_64:2022.12.22
-  CIBW_MANYLINUX_I686_IMAGE: cgohlke/imagecodecs_manylinux2014_i686:2022.12.22
-  CIBW_MANYLINUX_PYPY_X86_64_IMAGE: cgohlke/imagecodecs_manylinux2014_x86_64:2022.12.22
-  CIBW_ENVIRONMENT: "AEC_TEST_EXTENDED=1 IMAGECODECS_CIBW=1"
-  CIBW_BEFORE_BUILD: "pip install oldest-supported-numpy cython auditwheel==4.0.0"
-  CIBW_TEST_COMMAND: python -m pytest {project}/imagecodecs_src/tests/ --timeout=300
-  CIBW_TEST_REQUIRES: -r requirements_azure.txt
   AEC_TEST_EXTENDED: 1
   BASE_PATH: $(Build.Repository.LocalPath)
   LD_LIBRARY_PATH: $(Build.Repository.LocalPath)/build_utils/libs_build/lib
@@ -61,7 +63,7 @@ stages:
               python -m pip install numpy cython wheel
             displayName: "Install dependencies"
 
-          - bash: pip install ${CIBW_TEST_REQUIRES}
+          - bash: pip install -r requirements_azure.txt
             displayName: "install test dependencies"
 
           - script: pip install -e imagecodecs_src
@@ -76,7 +78,6 @@ stages:
         pool: { vmImage: "macos-11" }
         timeoutInMinutes: 100
         variables:
-          CIBW_SKIP: "pp*"
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
           DYLD_FALLBACK_LIBRARY_PATH: $(LD_LIBRARY_PATH)
@@ -134,7 +135,6 @@ stages:
         pool: { vmImage: "macos-11" }
         timeoutInMinutes: 150
         variables:
-          CIBW_SKIP: "pp* cp37*"
           LIBRARY_PATH: $(LD_LIBRARY_PATH)
           DYLD_LIBRARY_PATH: $(LD_LIBRARY_PATH)
           LD_RUNPATH_SEARCH_PATH: $(LD_LIBRARY_PATH)
@@ -179,7 +179,7 @@ stages:
               python -m pip install cibuildwheel
             displayName: "Install dependencies"
 
-          - script: cibuildwheel ./imagecodecs_src
+          - script: cibuildwheel ./imagecodecs_src --config-file pyproject.toml
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1
@@ -199,13 +199,6 @@ stages:
             manylinux2014_i686:
               CIBW_SKIP: "*64 pp* cp37* cp310* *-musllinux_i686"
         pool: { vmImage: "Ubuntu-20.04" }
-        variables:
-          # work around ... to "manylinux2014_x86_64" ABI because of the presence of too-recent versioned symbols
-          # use auditwheel=4.0.0 
-          # CIBW_REPAIR_WHEEL_COMMAND: "python -m auditwheel --verbose repair -w {dest_dir} {wheel}"
-          CIBW_REPAIR_WHEEL_COMMAND: "python -m auditwheel repair -w {dest_dir} {wheel}"
-          # snappy-devel is required for building python-snappy
-          CIBW_BEFORE_TEST: "yum install -y snappy-devel;pip install scikit_build; pip install cmake"
         steps:
           - checkout: self
             submodules: true
@@ -220,7 +213,7 @@ stages:
               python -m pip install cibuildwheel
             displayName: "Install dependencies"
 
-          - script: cibuildwheel ./imagecodecs_src
+          - script: cibuildwheel ./imagecodecs_src --config-file pyproject.toml
             displayName: "cibuildwheel"
 
           - task: PublishBuildArtifacts@1
