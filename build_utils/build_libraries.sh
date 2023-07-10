@@ -361,6 +361,7 @@ cd _build || exit 1
 cmake \
     -DCMAKE_INSTALL_PREFIX="${build_dir}" \
     -DBUILD_CODEC=OFF \
+    -DCMAKE_BUILD_TYPE=Release \
     ..
 make install
 
